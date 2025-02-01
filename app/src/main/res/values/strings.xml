@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Tracker</string>
+    <string name="google_maps_key">AIzaSyCTxSaHRd7zwoqCEL59i9J6SF_CPn4kwbQ</string>
+    <string name="routes">Routes</string>
+    <string name="settings">Settings</string>
+    <string name="map">Map</string>
 </resources>

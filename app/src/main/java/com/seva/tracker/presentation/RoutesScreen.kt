@@ -1,0 +1,14 @@
+package com.seva.tracker.presentation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+@Composable
+fun RoutesScreen() {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Text(text = "Экран маршрутов")
+    }
+}
