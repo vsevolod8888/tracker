@@ -3,8 +3,11 @@ package com.seva.tracker.di
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.room.Room
+import com.seva.tracker.data.repository.Repository
+import com.seva.tracker.data.repository.impl.RepositoryImpl
 import com.seva.tracker.data.room.Database
 import com.seva.tracker.internetconnection.MyConnectivityManager
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,6 +21,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class DataModule {
     @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): Database {
         return Room.databaseBuilder(
             context,
@@ -41,4 +45,15 @@ class DataModule {
     fun provideConnectivityManager(@ApplicationContext context: Context): MyConnectivityManager {
         return MyConnectivityManager(context,GlobalScope)
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindRepository(
+        repositoryImpl: RepositoryImpl
+    ): Repository
 }

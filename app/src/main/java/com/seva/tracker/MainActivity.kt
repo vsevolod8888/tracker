@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -14,15 +15,18 @@ import com.seva.tracker.ui.theme.TrackerTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.seva.tracker.presentation.MapScreen
+import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.bottomnavigation.BottomNavigationBar
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.RoutesScreen
 import com.seva.tracker.presentation.SettingsScreen
 import com.seva.tracker.presentation.floatactionbutton.MyFloatingActionButton
 import com.seva.tracker.presentation.topbar.TopBar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
+    private val viewModel: MyViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,7 +44,7 @@ class MainActivity : ComponentActivity() {
                        },
                     floatingActionButton = {MyFloatingActionButton(navController)}
                 ) { innerPadding ->
-                    NavigationGraph(navController, Modifier.padding(innerPadding))
+                    NavigationGraph(navController, Modifier.padding(innerPadding),viewModel)
                 }
             }
         }
@@ -48,13 +52,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
+fun NavigationGraph(navController: NavHostController, modifier: Modifier,viewModel: MyViewModel) {
     NavHost(navController = navController,
         startDestination = NavigationItem.Routes.route,
         modifier = modifier) {
         composable(NavigationItem.Routes.route) { RoutesScreen() }
         composable(NavigationItem.Settings.route) { SettingsScreen() }
-        composable(NavigationItem.Map.route) { MapScreen() }
+        composable(NavigationItem.Map.route) { MapScreen(viewModel) }
     }
 }
 
