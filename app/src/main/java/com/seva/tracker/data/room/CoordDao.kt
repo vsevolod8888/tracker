@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CoordDao {
@@ -26,14 +27,12 @@ interface CoordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCoordList(coordlist: List<CoordinatesEntity>)
 
-    @Query("SELECT * FROM coord WHERE recordNumber =:routeId")
-    suspend fun coordtList(routeId: Int): List<CoordinatesEntity>
 
     @Query("SELECT * FROM route WHERE id =:routeId")
     suspend fun routeById(routeId: Long): RouteEntity?
 
     @Query("SELECT * FROM coord WHERE recordNumber =:routeId")
-    fun coordtListLiveData(routeId: Int): LiveData<List<CoordinatesEntity>>
+    fun coordtListLiveData(routeId: Int): Flow<List<CoordinatesEntity>>
 
     @Insert//(onConflict = OnConflictStrategy.)
     suspend fun insertCoord(c: CoordinatesEntity)
@@ -48,19 +47,17 @@ interface CoordDao {
     suspend fun lastCoord(): CoordinatesEntity?
 
     @Query("SELECT * FROM coord ORDER BY id DESC")
-    fun allCoords(): LiveData<List<CoordinatesEntity>>
+    fun allCoords(): Flow<List<CoordinatesEntity>>
 
     @Query("SELECT MAX(recordNumber) FROM coord ")
     suspend fun getLastRecordNumber(): Long?
 
-    @Query("SELECT * FROM coord WHERE recordNumber=:recordNumberId ORDER BY checktime ")
-    fun getListByUnicalRecordNumber(recordNumberId: Long?): LiveData<List<CoordinatesEntity>>
 
     @Query("SELECT * FROM coord WHERE recordNumber=:recordNumberId ORDER BY checktime ")
     suspend fun getListByUnicalRecordNumberSuspend(recordNumberId: Long?): List<CoordinatesEntity>
 
     @Query("SELECT DISTINCT recordNumber FROM coord ORDER BY recordNumber ")
-    fun getOnlyRecordNumbersList(): LiveData<List<Int?>>
+    fun getOnlyRecordNumbersList(): Flow<List<Int?>>
 
     @Query("SELECT DISTINCT id FROM route ORDER BY id ")
     suspend fun getOnlyIdList(): List<Long>
