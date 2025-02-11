@@ -1,4 +1,4 @@
-package com.seva.tracker.presentation.mapDraw
+package com.seva.tracker.presentation.mapNewRoute
 
 import android.content.pm.PackageManager
 import android.util.Log
@@ -40,10 +40,11 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.common.LocationPermissionHandler
+import com.seva.tracker.presentation.mapDraw.calculateRouteLength
 import kotlinx.coroutines.launch
 
 @Composable
-fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
+fun MapNewRoute(viewModel: MyViewModel, navController: NavHostController) {
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var routeLength by remember { mutableStateOf(0.0) } // Длина маршрута
@@ -90,23 +91,6 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
         }
     }
 
-//    LaunchedEffect(Unit) {
-//        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-//            PackageManager.PERMISSION_GRANTED
-//        ) {
-//            locationPermissionGranted = true
-//            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-//                if (location != null) {
-//                    // Устанавливаем местоположение пользователя в качестве стартовой позиции
-//                    cameraPositionState.position = CameraPosition.fromLatLngZoom(
-//                        LatLng(location.latitude, location.longitude), 15f
-//                    )
-//                }
-//            }
-//        } else {
-//            requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-//        }
-//    }
     LocationPermissionHandler(
         onPermissionResult = { isGranted -> locationPermissionGranted = isGranted },
         onLocationReceived = { latLng ->
@@ -114,6 +98,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
             cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
         }
     )
+
 
     val onMapClick: (LatLng) -> Unit = { latLng ->
         val markerState = MarkerState(position = latLng)
@@ -197,30 +182,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
     }
 }
 
-// Функция для вычисления длины маршрута
-fun calculateRouteLength(points: List<LatLng>): Double {
-    var totalDistance = 0.0
-    for (i in 0 until points.size - 1) {
-        totalDistance += calculateDistance(points[i], points[i + 1])
-    }
-    return totalDistance
-}
 
-// Функция для вычисления расстояния между двумя точками (формула Хаверсина)
-fun calculateDistance(start: LatLng, end: LatLng): Double {
-    val R = 6371e3 // Радиус Земли в метрах
-    val lat1 = Math.toRadians(start.latitude)
-    val lat2 = Math.toRadians(end.latitude)
-    val deltaLat = Math.toRadians(end.latitude - start.latitude)
-    val deltaLon = Math.toRadians(end.longitude - start.longitude)
-
-    val a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-            Math.cos(lat1) * Math.cos(lat2) *
-            Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2)
-    val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-    return R * c // Возвращает расстояние в метрах
-}
 
 
 

@@ -1,5 +1,6 @@
 package com.seva.tracker.presentation.routes
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -41,12 +42,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.resolveDefaults
 import com.seva.tracker.R
 import com.seva.tracker.data.room.RouteEntity
+import com.seva.tracker.presentation.common.ConfirmationDialog
 
 @Composable
 fun RoutesScreen(viewModel: MyViewModel, navController: NavHostController) {
-    val routes by viewModel.allRoutesFlow().collectAsState(initial = emptyList()) // Получаем список маршрутов
+    val routes by viewModel.allRoutesFlow().collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
     var deletedMatch by remember { mutableStateOf<RouteEntity?>(null) }
     var showDialog by remember { mutableStateOf(false) }
@@ -100,36 +104,25 @@ fun RoutesScreen(viewModel: MyViewModel, navController: NavHostController) {
         }
     }
 
-    // Показ диалогового окна
     if (showDialog && deletedMatch != null) {
-        AlertDialog(
-            onDismissRequest = {
+        ConfirmationDialog(
+            title = stringResource(R.string.tittledeleteallert),
+            message = stringResource(R.string.areyousurewanttodeleteroute)+" ${deletedMatch?.recordRouteName}?",
+            confirmText = stringResource(R.string.delete),
+            dismissText = stringResource(R.string.cancel),
+            onConfirm = {
+                coroutineScope.launch {
+                //    Log.d("zzz","deletedMatch : ${deletedMatch!!.recordRouteName}")
+                    deletedMatch?.let {
+                        viewModel.deleteRouteAndRecordNumberTogether(it.id) }
+
+                    deletedMatch = null
+                }
                 showDialog = false
-                deletedMatch = null  // Сброс состояния после закрытия диалога
             },
-            title = { Text("Удалить маршрут") },
-            text = { Text("Вы уверены, что хотите удалить маршрут: ${deletedMatch?.recordRouteName}?") },
-            confirmButton = {
-                Button(onClick = {
-                    coroutineScope.launch {
-                        // Логика для удаления маршрута
-                        deletedMatch?.let {
-                            viewModel.deleteRouteAndRecordNumberTogether(it.id)  // Удаляем маршрут
-                        }
-                    }
-                    showDialog = false
-                    deletedMatch = null  // Сбросить состояние после удаления
-                }) {
-                    Text("Удалить")
-                }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showDialog = false
-                    deletedMatch = null  // Сброс состояния после отмены
-                }) {
-                    Text("Отмена")
-                }
+            onDismiss = {
+                showDialog = false
+                deletedMatch = null
             }
         )
     }
