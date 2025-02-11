@@ -5,4 +5,10 @@
     <string name="settings">Settings</string>
     <string name="mapdraw">Map Draw</string>
     <string name="mapready">Map Ready</string>
+
+    <string name="tittledeleteallert">Delete route</string>
+    <string name="areyousurewanttodeleteroute">Are you sure you want to delete the route:</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+
 </resources>
