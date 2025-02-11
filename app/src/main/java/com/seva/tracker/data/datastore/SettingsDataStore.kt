@@ -28,15 +28,15 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     private object PreferencesKeys{
         val KEY_USERNAME = stringPreferencesKey("key_username")
         val KEY_PHOTO_AVATAR = stringPreferencesKey("key_photo_avatar")
-        val KEY_ENTER_COUNT = intPreferencesKey("key_enter_count")
+        val KEY_ROUTE_ID = intPreferencesKey("key_route_id")
     }
 
-    var entercountDataStore: Flow<Int> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_ENTER_COUNT] ?: 0
+    var route_id: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0
     }
-    suspend fun saveEnterCount(value: Int){
+    suspend fun saveRouteId(value: Int){
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.KEY_ENTER_COUNT] = value
+            preferences[PreferencesKeys.KEY_ROUTE_ID] = value
         }
     }
 

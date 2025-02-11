@@ -14,13 +14,14 @@ import androidx.compose.ui.Modifier
 import com.seva.tracker.ui.theme.TrackerTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.seva.tracker.presentation.MapScreen
+import com.seva.tracker.presentation.mapDraw.MapDrawScreen
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.bottomnavigation.BottomNavigationBar
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
-import com.seva.tracker.presentation.RoutesScreen
+import com.seva.tracker.presentation.routes.RoutesScreen
 import com.seva.tracker.presentation.SettingsScreen
 import com.seva.tracker.presentation.floatactionbutton.MyFloatingActionButton
+import com.seva.tracker.presentation.mapReady.MapReadyScreen
 import com.seva.tracker.presentation.topbar.TopBar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = { TopBar(navController) },
                     bottomBar = {
-                        if(currentRoute?.destination?.route!=NavigationItem.Map.route){
+                        if(currentRoute?.destination?.route!=NavigationItem.MapDraw.route){
                             BottomNavigationBar(navController)
                         }
                        },
@@ -56,11 +57,12 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier,viewMod
     NavHost(navController = navController,
         startDestination = NavigationItem.Routes.route,
         modifier = modifier) {
-        composable(NavigationItem.Routes.route) { RoutesScreen() }
+        composable(NavigationItem.Routes.route) { RoutesScreen(viewModel,navController) }
         composable(NavigationItem.Settings.route) { SettingsScreen() }
-        composable(NavigationItem.Map.route) { MapScreen(viewModel) }
+        composable(NavigationItem.MapDraw.route) { MapDrawScreen(viewModel,navController) }
+        composable("map_ready/{routeId}") { backStackEntry ->
+            val routeId = backStackEntry.arguments?.getString("routeId")?.toLongOrNull() ?: return@composable
+            MapReadyScreen(viewModel, navController, routeId)
+        }
     }
 }
-
-
-

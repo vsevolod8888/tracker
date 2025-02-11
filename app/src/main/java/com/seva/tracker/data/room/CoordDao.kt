@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CoordDao {
     @Query("select * from route")
-    fun getRoutes(): LiveData<List<RouteEntity>>
+    fun getRoutes(): Flow<List<RouteEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) //перезаписывает если одинак. айдишка
     suspend fun insertRoute(r: RouteEntity)
@@ -32,7 +32,7 @@ interface CoordDao {
     suspend fun routeById(routeId: Long): RouteEntity?
 
     @Query("SELECT * FROM coord WHERE recordNumber =:routeId")
-    fun coordtListLiveData(routeId: Int): Flow<List<CoordinatesEntity>>
+    fun coordtListLiveFlow(routeId: Int): Flow<List<CoordinatesEntity>>
 
     @Insert//(onConflict = OnConflictStrategy.)
     suspend fun insertCoord(c: CoordinatesEntity)
@@ -52,9 +52,10 @@ interface CoordDao {
     @Query("SELECT MAX(recordNumber) FROM coord ")
     suspend fun getLastRecordNumber(): Long?
 
-
     @Query("SELECT * FROM coord WHERE recordNumber=:recordNumberId ORDER BY checktime ")
-    suspend fun getListByUnicalRecordNumberSuspend(recordNumberId: Long?): List<CoordinatesEntity>
+    fun getListByUnicalRecordNumber(recordNumberId: Long?): Flow<List<CoordinatesEntity>>
+
+
 
     @Query("SELECT DISTINCT recordNumber FROM coord ORDER BY recordNumber ")
     fun getOnlyRecordNumbersList(): Flow<List<Int?>>
