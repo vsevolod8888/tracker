@@ -10,5 +10,12 @@
     <string name="areyousurewanttodeleteroute">Are you sure you want to delete the route:</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="create">Create</string>
+
+    <string name="createoute">Create Route</string>
+    <string name="enteraroutenameandselectanaction">Enter a route name and select an action</string>
+    <string name="enterroutename">Enter route name</string>
+    <string name="newroute">New route</string>
+    <string name="drawroute">Draw route</string>
 
 </resources>

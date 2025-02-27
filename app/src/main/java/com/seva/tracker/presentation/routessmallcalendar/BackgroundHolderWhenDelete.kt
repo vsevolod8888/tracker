@@ -1,4 +1,4 @@
-package com.seva.tracker.presentation.routes
+package com.seva.tracker.presentation.routessmallcalendar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

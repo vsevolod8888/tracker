@@ -1,4 +1,4 @@
-package com.seva.tracker.presentation.routes
+package com.seva.tracker.presentation.routessmallcalendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.seva.tracker.data.room.RouteEntity
+import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 
 @Composable
 fun RouteHolder(routeEntity:RouteEntity, navController: NavHostController){
@@ -21,7 +22,11 @@ fun RouteHolder(routeEntity:RouteEntity, navController: NavHostController){
         .height(70.dp)
         .clip(RoundedCornerShape(10.dp))
         .background(Color.White).clickable {
-            navController.navigate("map_ready/${routeEntity.id}")
+        //    navController.navigate("${NavigationItem.MapReady.route}/${routeEntity.id}")
+            navController.navigate(
+                "${NavigationItem.MapReady.route}/${routeEntity.id}/${routeEntity.recordRouteName}"
+            )
+
         },){
         Text(text = routeEntity.recordRouteName, color = Color.Black)
     }

@@ -1,4 +1,4 @@
-package com.seva.tracker.presentation.common
+package com.seva.tracker.presentation.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button

@@ -1,6 +1,7 @@
-package com.seva.tracker.presentation.common
+package com.seva.tracker.permissions
 
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +30,6 @@ fun LocationPermissionHandler(
         if (isGranted) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    Log.d("zzz"," location : ${location.latitude}, ${location.longitude})")
                     onLocationReceived(LatLng(location.latitude, location.longitude))
                 }
             }
@@ -51,4 +51,6 @@ fun LocationPermissionHandler(
         }
     }
 }
+
+
 

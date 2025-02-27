@@ -18,7 +18,7 @@ import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 fun TopBar(navController: NavHostController) {
     val currentRoute by navController.currentBackStackEntryAsState()
     val title = when (currentRoute?.destination?.route) {
-        NavigationItem.Routes.route -> stringResource(R.string.routes)
+        NavigationItem.RoutesSmallCalendar.route -> stringResource(R.string.routes)
         NavigationItem.Settings.route -> stringResource(R.string.settings)
         else -> stringResource(R.string.app_name) // Заголовок по умолчанию
     }

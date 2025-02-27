@@ -82,4 +82,6 @@ dependencies {
     implementation (libs.androidx.room.room.ktx)
 
     implementation (libs.androidx.datastore.preferences)
+
+    implementation(libs.kotlinx.datetime)
 }

@@ -2,10 +2,11 @@ package com.seva.tracker.data.datastore
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,15 +27,17 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     }
 
     private object PreferencesKeys{
-        val KEY_USERNAME = stringPreferencesKey("key_username")
+        val KEY_ROUTENAME = stringPreferencesKey("key_routename")
         val KEY_PHOTO_AVATAR = stringPreferencesKey("key_photo_avatar")
-        val KEY_ROUTE_ID = intPreferencesKey("key_route_id")
+
+        val KEY_ROUTE_ID = longPreferencesKey("key_route_id")
     }
 
-    var route_id: Flow<Int> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0
+    var route_id: Flow<Long> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0L
     }
-    suspend fun saveRouteId(value: Int){
+    suspend fun saveRouteId(value: Long){
+        Log.d("zzz", "saveRouteId DataStore ${value}")
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_ROUTE_ID] = value
         }
@@ -49,13 +52,13 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
         }
     }
 
-    var usernameDataStore: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_USERNAME] ?: ""
+    var routenameDataStore: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEY_ROUTENAME] ?: ""
     }
 
-    suspend fun saveUsernameDataStore(value: String){
+    suspend fun saveRouteNameDataStore(value: String){
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.KEY_USERNAME] = value
+            preferences[PreferencesKeys.KEY_ROUTENAME] = value
         }
     }
 }
