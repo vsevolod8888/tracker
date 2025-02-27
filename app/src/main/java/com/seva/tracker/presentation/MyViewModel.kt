@@ -1,6 +1,7 @@
 package com.seva.tracker.presentation
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seva.tracker.data.datastore.SettingsDataStore
@@ -12,8 +13,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,24 +40,29 @@ class MyViewModel @Inject constructor(
             }
         }
     }
-    private val _routeId = MutableStateFlow(0L)
-    val routeId: StateFlow<Long> = _routeId
+
 
     init {
-        viewModelScope.launch {
-            val savedRouteId = settingsData.route_id.first()
-            _routeId.value = if (savedRouteId > 0) savedRouteId.toLong() else System.currentTimeMillis()
-        }
+//        viewModelScope.launch {
+//            val savedRouteId = settingsData.route_id.first()
+//            _routeId.value = if (savedRouteId > 0) savedRouteId.toLong() else System.currentTimeMillis()
+//        }
     }
 
+    val routeId: StateFlow<Long> = settingsData.route_id
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0L)
+
     suspend fun updateRouteId(newId: Long) {
-        _routeId.value = newId
-        settingsData.saveRouteId(newId.toInt())
+        Log.d("zzz", "viewmodel updateRouteId routeId $newId")
+        settingsData.saveRouteId(newId)
+    }
+
+    suspend fun saveRouteName(routeName: String) {
+        settingsData.saveRouteNameDataStore(routeName)
     }
 
     suspend fun clearRouteId() {
-        _routeId.value = 0L
-        settingsData.saveRouteId(0)
+        settingsData.saveRouteId(0L)
     }
     suspend fun saveDrawCoord(
         lat: Double,
@@ -76,6 +84,7 @@ class MyViewModel @Inject constructor(
         val newRoute =
             RouteEntity(
                 id = numbOfRecord,
+                isDrawing = true,
                 checkTime = System.currentTimeMillis(),
                 recordRouteName = nameOfDrRoute,
                 isClicked = false
@@ -105,5 +114,9 @@ class MyViewModel @Inject constructor(
     }
     fun allRoutesFlow(): Flow<List<RouteEntity>> {
         return repository.allRoutesFlow()
+    }
+
+    suspend fun routeById(routeId: Long): RouteEntity?{
+        return repository.routeById(routeId)
     }
 }

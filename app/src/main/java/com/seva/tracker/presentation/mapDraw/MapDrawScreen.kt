@@ -1,6 +1,5 @@
 package com.seva.tracker.presentation.mapDraw
 
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,22 +36,18 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
-import com.seva.tracker.presentation.common.LocationPermissionHandler
+
 import kotlinx.coroutines.launch
 
 @Composable
-fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
+fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,routeName:String?) {
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
-    var routeLength by remember { mutableStateOf(0.0) } // Длина маршрута
+    var routeLength by remember { mutableStateOf(0.0) }
     var scope = rememberCoroutineScope()
 
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        locationPermissionGranted = isGranted
-    }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val coroutineScope = rememberCoroutineScope()
@@ -72,12 +66,11 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
         if (routeId == 0L) {
             viewModel.updateRouteId(System.currentTimeMillis())
         }
-    }
+    //    Log.d("zzz"," name : ${routeName})")
+   }
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
     LaunchedEffect(coordinates) {
         markers.clear()
-
-        // Создаём новый список вместо изменения старого
         markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
         routeLength = calculateRouteLength(markerLatLngList)
         markers.addAll(markerLatLngList.map { MarkerState(position = it) })
@@ -90,27 +83,10 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
         }
     }
 
-//    LaunchedEffect(Unit) {
-//        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-//            PackageManager.PERMISSION_GRANTED
-//        ) {
-//            locationPermissionGranted = true
-//            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-//                if (location != null) {
-//                    // Устанавливаем местоположение пользователя в качестве стартовой позиции
-//                    cameraPositionState.position = CameraPosition.fromLatLngZoom(
-//                        LatLng(location.latitude, location.longitude), 15f
-//                    )
-//                }
-//            }
-//        } else {
-//            requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-//        }
-//    }
     LocationPermissionHandler(
         onPermissionResult = { isGranted -> locationPermissionGranted = isGranted },
         onLocationReceived = { latLng ->
-            Log.d("zzz"," location : ${latLng.latitude}, ${latLng.longitude})")
+            Log.d("zzz"," location : ${latLng.latitude}, ${latLng.longitude},${routeName})")
             cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
         }
     )
@@ -133,6 +109,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
 
         // Пересчитываем длину маршрута
             // routeLength = calculateRouteLength(markerLatLngList)
+
     }
     Box(modifier = Modifier.fillMaxSize()) {
         // Отображаем карту
@@ -161,7 +138,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
         }
         Column (modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween){
             Text(
-                text = "Route Length: ${"%.2f".format(routeLength)} meters",
+                text = "$routeName: ${"%.2f".format(routeLength)} meters",
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black,
                 modifier = Modifier.padding(16.dp)
@@ -169,7 +146,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController) {
             Button(onClick = {
                 scope.launch {
                     viewModel.saveDrawRoute(
-                        nameOfDrRoute = "Route Length: ${"%.2f".format(routeLength)} m", // Заглушка длины
+                        nameOfDrRoute = "$routeName", // Заглушка длины
                         numbOfRecord = routeId
                     )
                     viewModel.clearRouteId() // Очищаем ID после сохранения

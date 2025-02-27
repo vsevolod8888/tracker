@@ -14,4 +14,5 @@ interface Repository {
     fun coordtListLiveFlow(routeId: Long): Flow<List<CoordinatesEntity>>
     suspend fun deleteRouteAndRecordNumberTogether(id: Long)
     fun allRoutesFlow(): Flow<List<RouteEntity>>
+    suspend fun routeById(routeId: Long): RouteEntity?
 }

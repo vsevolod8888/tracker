@@ -1,10 +1,7 @@
 package com.seva.tracker.presentation.mapReady
 
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,24 +35,28 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.seva.tracker.data.room.RouteEntity
+import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
-import com.seva.tracker.presentation.common.LocationPermissionHandler
+import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.mapDraw.calculateRouteLength
+import com.seva.tracker.startCounterService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun MapReadyScreen(viewModel: MyViewModel, navController: NavHostController, routeId: Long) {
+fun MapReadyScreen(
+    viewModel: MyViewModel,
+    navController: NavHostController,
+    routeId: Long,
+    recordRouteName: String
+) {
+    var routeEntity by remember { mutableStateOf<RouteEntity?>(null) }
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var routeLength by remember { mutableStateOf(0.0) } // Длина маршрута
     var scope = rememberCoroutineScope()
 
-
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        locationPermissionGranted = isGranted
-    }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val coroutineScope = rememberCoroutineScope()
@@ -99,6 +100,11 @@ fun MapReadyScreen(viewModel: MyViewModel, navController: NavHostController, rou
         }
     )
 
+    // Запускаем корутину для получения данных по routeId
+    LaunchedEffect(routeId) {
+        routeEntity = viewModel.routeById(routeId)
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -134,9 +140,30 @@ fun MapReadyScreen(viewModel: MyViewModel, navController: NavHostController, rou
             Button(onClick = {
               //  navController.navigate("map_ready/${routeEntity.id}")
                 scope.launch {
-                    navController.navigate("mapdraw")
-                 //   viewModel.saveDrawRoute(nameOfDrRoute = "Route Length: ${"%.2f".format(routeLength)} m", numbOfRecord = routeId )
+                 //   navController.navigate("mapdraw")
+            //       viewModel.saveDrawRoute(nameOfDrRoute = "Route Length: ${"%.2f".format(routeLength)} m", numbOfRecord = routeId )
               // navController.popBackStack()
+
+                    when(routeEntity?.isDrawing){
+                        true ->{
+                            navController.navigate("${NavigationItem.MapDraw.route}/$recordRouteName") {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        else ->{
+                            navController.navigate("${NavigationItem.MapNew.route}/$recordRouteName") {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+
+                            startCounterService(context)
+                        }
+                    }
+
+
                 }
             }) {
                 Text(

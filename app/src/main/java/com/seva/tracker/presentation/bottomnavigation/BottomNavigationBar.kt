@@ -21,7 +21,8 @@ import com.seva.tracker.R
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
-        NavigationItem.Routes,
+        NavigationItem.RoutesSmallCalendar,
+        NavigationItem.Create,
         NavigationItem.Settings
     )
 
@@ -40,7 +41,11 @@ fun BottomNavigationBar(navController: NavHostController) {
                         restoreState = true
                     }
                 },
-                icon = { Icon(painterResource(id = item.icon), contentDescription = null) },
+                icon = {
+                    item.icon?.let {
+                        Icon(painterResource(id = it), contentDescription = null)
+                    }
+                       },
                 label = { Text(stringResource(id = item.titleResId)) }
             )
         }

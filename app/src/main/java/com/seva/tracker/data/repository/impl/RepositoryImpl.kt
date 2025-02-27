@@ -49,4 +49,7 @@ class RepositoryImpl @Inject constructor(
     override fun allRoutesFlow(): Flow<List<RouteEntity>> {
         return databasse.dao.getRoutes()
     }
+    override suspend fun routeById(routeId: Long): RouteEntity?{
+        return databasse.dao.routeById(routeId)
+    }
 }
