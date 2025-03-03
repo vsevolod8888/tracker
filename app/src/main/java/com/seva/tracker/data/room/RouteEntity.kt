@@ -8,6 +8,9 @@ import androidx.room.PrimaryKey
 data class RouteEntity(
     @PrimaryKey//(autoGenerate = true)
     var id: Long,//= System.currentTimeMillis()
+
+    val epochDays: Int = 0,
+
     var isDrawing: Boolean,
     @ColumnInfo(name = "checktime")
     var checkTime: Long,//= System.currentTimeMillis()

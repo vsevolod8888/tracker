@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -29,8 +30,9 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     private object PreferencesKeys{
         val KEY_ROUTENAME = stringPreferencesKey("key_routename")
         val KEY_PHOTO_AVATAR = stringPreferencesKey("key_photo_avatar")
-
         val KEY_ROUTE_ID = longPreferencesKey("key_route_id")
+        val KEY_THEME = booleanPreferencesKey("key_theme")
+
     }
 
     var route_id: Flow<Long> = context.dataStore.data.map { preferences ->
@@ -59,6 +61,15 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     suspend fun saveRouteNameDataStore(value: String){
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_ROUTENAME] = value
+        }
+    }
+
+    var isThemeDarkDataStore: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEY_THEME] ?: false
+    }
+    suspend fun saveIsThemeDarkDataStore(value: Boolean){
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_THEME] = value
         }
     }
 }

@@ -81,9 +81,11 @@ class MyViewModel @Inject constructor(
     }
 
     suspend fun saveDrawRoute(nameOfDrRoute: String, numbOfRecord: Long) {
+        var epochDays  = numbOfRecord/86400000
         val newRoute =
             RouteEntity(
                 id = numbOfRecord,
+                epochDays = epochDays.toInt(),
                 isDrawing = true,
                 checkTime = System.currentTimeMillis(),
                 recordRouteName = nameOfDrRoute,
@@ -92,19 +94,6 @@ class MyViewModel @Inject constructor(
         repository.insertRoute(newRoute)
     }
 
-    suspend fun lastNumberOfList(): Long {
-        if (numbOfRecord != null) {
-            return numbOfRecord!!
-        }
-        var lastNumberOfList = repository.lastNumberOfList()
-        numbOfRecord = if (lastNumberOfList == null) {
-            System.currentTimeMillis()
-        } else {
-            lastNumberOfList
-            //System.currentTimeMillis()
-        }
-        return numbOfRecord!!
-    }
 
     fun coordtListLiveFlow(routeId: Long): Flow<List<CoordinatesEntity>> {
         return repository.coordtListLiveFlow(routeId)
@@ -118,5 +107,14 @@ class MyViewModel @Inject constructor(
 
     suspend fun routeById(routeId: Long): RouteEntity?{
         return repository.routeById(routeId)
+    }
+
+
+    val isThemeDark: StateFlow<Boolean> = settingsData.isThemeDarkDataStore
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    suspend fun updateTheme(theme: Boolean) {
+        Log.d("vvv", "viewmodel updateTheme $theme")
+        settingsData.saveIsThemeDarkDataStore(theme)
     }
 }
