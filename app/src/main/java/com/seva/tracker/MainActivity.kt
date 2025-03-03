@@ -1,10 +1,13 @@
 package com.seva.tracker
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -13,7 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,7 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.seva.tracker.ui.theme.TrackerTheme
 import androidx.navigation.NavHostController
@@ -34,7 +39,7 @@ import com.seva.tracker.presentation.mapDraw.MapDrawScreen
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.routessmallcalendar.RoutesScreen
-import com.seva.tracker.presentation.SettingsScreen
+import com.seva.tracker.presentation.settings.SettingsScreen
 import com.seva.tracker.presentation.dialogs.RouteConfirmationDialog
 import com.seva.tracker.presentation.floatactionbutton.MyFloatingActionButton
 import com.seva.tracker.presentation.mapNewRoute.MapNewRouteScreen
@@ -51,13 +56,28 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MyViewModel by viewModels()
 
 
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //   enableEdgeToEdge()
-        window.statusBarColor = ContextCompat.getColor(this, R.color.black)
+         //  enableEdgeToEdge()
+               //  window.statusBarColor = ContextCompat.getColor(this, R.color.black)
+            //    enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
         setContent {
-            TrackerTheme {
+            val isDarkTheme by viewModel.isThemeDark.collectAsState()
+            lifecycleScope.launch {
+                viewModel.isThemeDark.collect { isDarkTheme ->
+                    enableEdgeToEdge(
+                        statusBarStyle = if (isDarkTheme) {
+                            SystemBarStyle.dark(Color.TRANSPARENT,) // Темная тема – светлые значки
+                        } else {
+                            SystemBarStyle.light(Color.TRANSPARENT, darkScrim = Color.TRANSPARENT) // Светлая тема – темные значки
+                        }
+                    )
+                }
+            }
+            TrackerTheme (darkTheme = isDarkTheme){
                 val navController = rememberNavController()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 var showDialog by remember { mutableStateOf(false) }
@@ -68,8 +88,8 @@ class MainActivity : ComponentActivity() {
                             showDialog = true
                         })
                     }
-                ) { innerPadding ->
-                    NavigationGraph(navController, Modifier.padding(innerPadding), viewModel,
+                ) {
+                    NavigationGraph(navController, Modifier.padding(0.dp), viewModel,
                         showDialog = showDialog, // 🔥 Передаем showDialog в NavigationGraph
                         onShowDialogChange = { showDialog = it })
                 }
@@ -203,7 +223,7 @@ fun NavigationGraph(
         modifier = modifier
     ) {
         composable(NavigationItem.RoutesSmallCalendar.route) { RoutesScreen(viewModel, navController) }
-        composable(NavigationItem.Settings.route) { SettingsScreen() }
+        composable(NavigationItem.Settings.route) { SettingsScreen(viewModel, navController) }
         composable("${NavigationItem.MapDraw.route}/{routeName}") { backStackEntry ->
             val routeName = backStackEntry.arguments?.getString("routeName")
             MapDrawScreen(viewModel, navController, routeName)

@@ -147,9 +147,11 @@ class CounterService : Service() {
             val routeId = settingsData.route_id.first()
             delay(1000)
             Log.d("zzz", "settingsData.route_id.first() saved $routeId")
+            var epochDays  = routeId/86400000
             val newRoute =
                 RouteEntity(
                     id = routeId,
+                    epochDays = epochDays.toInt(),
                     isDrawing = false,
                     checkTime = System.currentTimeMillis(),
                     recordRouteName = routeName,

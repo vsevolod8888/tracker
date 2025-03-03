@@ -49,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seva.tracker.R
+import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.INITIAL_PAGE_INDEX
 import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.MAX_PAGES
 import kotlinx.coroutines.delay
@@ -69,7 +70,7 @@ import kotlin.math.floor
 @Composable
 fun MyCalendar(
 //    viewModel: CalendarHistoryViewModel,
-//    value: List<GameEntity>,
+    value: List<RouteEntity>,
     onDateSelected: (Int) -> Unit
 ) {
     var dateToday = LocalDate.today()
@@ -94,7 +95,9 @@ fun MyCalendar(
                         date = state.date,
                         isCurrentMonth = state.date.month == dateToday.month && state.date.year == dateToday.year,
                         isSelected = state.date.toEpochDays() == selectedDate,
-                        isDotVisible = true,
+                        isDotVisible = value.any {
+                            it.epochDays == state.date.toEpochDays().toInt()
+                        },
                         onClick = {
                             selectedDate = state.date.toEpochDays()
                             onDateSelected(state.date.toEpochDays().toInt())

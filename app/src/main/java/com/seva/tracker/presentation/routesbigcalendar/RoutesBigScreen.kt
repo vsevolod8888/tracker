@@ -24,10 +24,20 @@ import com.seva.tracker.presentation.MyViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,15 +46,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import com.seva.tracker.R
+import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.io.wojciechosak.calendar.view.MyCalendar
+import com.seva.tracker.io.wojciechosak.calendar.view.today
 import com.seva.tracker.presentation.common.rowbuttons
 import com.seva.tracker.presentation.dialogs.ConfirmationDialog
 import com.seva.tracker.presentation.routessmallcalendar.BackgroundHolderWhenDelete
 import com.seva.tracker.presentation.routessmallcalendar.RouteHolder
-import com.seva.tracker.presentation.topbar.ToolBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
 import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -54,165 +69,159 @@ fun RoutesBigScreen(viewModel: MyViewModel, navController: NavHostController) {
     var deletedMatch by remember { mutableStateOf<RouteEntity?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var isClickedSport by remember { mutableStateOf(1) }
+    var filteredRoutes by remember { mutableStateOf<List<RouteEntity>>(emptyList()) }
+    var selectedDayToEpoch by remember { mutableStateOf<Int?>(null) }
+    val today = LocalDate.today()
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            viewModel.allRoutesFlow().collect { routes ->
+                filteredRoutes = if (selectedDayToEpoch == null)
+                    routes.filter { it.epochDays == today.toEpochDays() }
+                else
+                    routes.filter { it.epochDays == selectedDayToEpoch }
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-                topBar = { Column {
-                    ToolBar(
-                        "History",
-                        isVisiblePicturesInRight = false,
-                        isVisiblePictureInLeft = true,
-                        goToCalendar = {},
-                        goToSettings = {},
-                        onArrowBackClick = { navController.popBackStack() }
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = {
+                        Text(stringResource(R.string.routes), style = TextStyleLocal.regular16)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface, // Фон
+                        titleContentColor = MaterialTheme.colorScheme.onSurface, // Цвет текста
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface, // Цвет иконки "назад"
                     )
-                    // Перемещаем rowbuttons внутрь topBar
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .background(colorResource(id = R.color.purple_200))
-                            .clip(RoundedCornerShape(20.dp))
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        rowbuttons(Modifier.fillMaxSize()) { isClickedSport = it }
-                    }
-                } },
-//                    bottomBar = {
-//                        if (currentRoute?.destination?.route != NavigationItem.MapDraw.route) {
-//                            BottomNavigationBar(navController)
-//                        }
-//                    },
-        //    floatingActionButton = {MyFloatingActionButton(navController)}
-    ) { padding->
-
-    Column (modifier = Modifier.padding(padding).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-
-
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        Box(modifier = Modifier.fillMaxWidth().height(50.dp)) {
-//            rowbuttons(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(50.dp)
-//                    .padding(start = 12.dp, end = 20.dp, bottom = 12.dp)
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(colorResource(id = R.color.purple_200))
-//            ) { isClickedSport = it }
-//        }
-        MyCalendar( onDateSelected = { selectedDate ->
-//            selectedDayToEpoch = selectedDate
-//            filteredGames = listOfGames.value.filter { it.epochDays == selectedDate }
-//            scope.launch {
-//                try {
-//                    viewModel.getMatchesByDate(selectedDate.toString()).catch {
-//                    }.collect {
-//                    }
-//                } catch (e: Exception){
-//
-//                }
-//                delay(1000)
-//
-//                filteredGames =
-//                    listOfGames.value.filter { it.epochDays == selectedDate }
-//            }
-        })
-
-
-        when (isClickedSport.absoluteValue) {
-            1 -> {
-                LazyColumn(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .background(colorResource(id = R.color.purple_200))
+                        .clip(RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    items(
-                        items = routes.filter { !it.isDrawing },
-                        key = { selectedRoute -> selectedRoute.id }
-                    ) { selectedRoute ->
+                    rowbuttons(Modifier.fillMaxSize()) { isClickedSport = it }
+                }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.primary
 
-                        // Создаем состояние для смахивания
-                        val swipeState = rememberSwipeToDismissBoxState(
-                            initialValue = SwipeToDismissBoxValue.Settled,
-                            confirmValueChange = {
-                                // Логика для обработки смахивания
-                                if (it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd) {
-                                    // Если элемент был смахнут
-                                    deletedMatch = selectedRoute
-                                    showDialog = true // Показать диалог
-                                    false
+        ) { padding ->
+
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+
+            MyCalendar(routes, onDateSelected = { selectedDate ->
+                selectedDayToEpoch = selectedDate
+                filteredRoutes = routes.filter { it.epochDays == selectedDate }
+
+            })
+
+
+            when (isClickedSport.absoluteValue) {
+                1 -> {
+                    LazyColumn(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = filteredRoutes.filter { !it.isDrawing },
+                            key = { selectedRoute -> selectedRoute.id }
+                        ) { selectedRoute ->
+
+                            // Создаем состояние для смахивания
+                            val swipeState = rememberSwipeToDismissBoxState(
+                                initialValue = SwipeToDismissBoxValue.Settled,
+                                confirmValueChange = {
+                                    // Логика для обработки смахивания
+                                    if (it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd) {
+                                        // Если элемент был смахнут
+                                        deletedMatch = selectedRoute
+                                        showDialog = true // Показать диалог
+                                        false
+                                    } else {
+                                        true
+                                    }
+                                },
+                            )
+
+                            // Используем SwipeToDismissBox
+                            SwipeToDismissBox(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = swipeState,
+                                enableDismissFromStartToEnd = true,
+                                enableDismissFromEndToStart = true,
+                                gesturesEnabled = true,
+                                backgroundContent = {
+                                    // Задний фон для смахивания
+                                    BackgroundHolderWhenDelete()
+                                },
+                            ) {
+                                // Показываем Background только для удаляемого маршрута
+                                if (deletedMatch == selectedRoute) {
+                                    BackgroundHolderWhenDelete()
                                 } else {
-                                    true
+                                    RouteHolder(routeEntity = selectedRoute, navController)
                                 }
-                            },
-                        )
-
-                        // Используем SwipeToDismissBox
-                        SwipeToDismissBox(
-                            modifier = Modifier.fillMaxWidth(),
-                            state = swipeState,
-                            enableDismissFromStartToEnd = true,
-                            enableDismissFromEndToStart = true,
-                            gesturesEnabled = true,
-                            backgroundContent = {
-                                // Задний фон для смахивания
-                                BackgroundHolderWhenDelete()
-                            },
-                        ) {
-                            // Показываем Background только для удаляемого маршрута
-                            if (deletedMatch == selectedRoute) {
-                                BackgroundHolderWhenDelete()
-                            } else {
-                                RouteHolder(routeEntity = selectedRoute, navController)
                             }
                         }
                     }
                 }
-            }
 
-            2 -> {
-                LazyColumn(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        items = routes.filter { it.isDrawing },
-                        key = { selectedRoute -> selectedRoute.id }
-                    ) { selectedRoute ->
+                2 -> {
+                    LazyColumn(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = filteredRoutes.filter { it.isDrawing },
+                            key = { selectedRoute -> selectedRoute.id }
+                        ) { selectedRoute ->
 
-                        // Создаем состояние для смахивания
-                        val swipeState = rememberSwipeToDismissBoxState(
-                            initialValue = SwipeToDismissBoxValue.Settled,
-                            confirmValueChange = {
-                                // Логика для обработки смахивания
-                                if (it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd) {
-                                    // Если элемент был смахнут
-                                    deletedMatch = selectedRoute
-                                    showDialog = true // Показать диалог
-                                    false
+                            val swipeState = rememberSwipeToDismissBoxState(
+                                initialValue = SwipeToDismissBoxValue.Settled,
+                                confirmValueChange = {
+                                    if (it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd) {
+                                        deletedMatch = selectedRoute
+                                        showDialog = true
+                                        false
+                                    } else {
+                                        true
+                                    }
+                                },
+                            )
+
+                            SwipeToDismissBox(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = swipeState,
+                                enableDismissFromStartToEnd = true,
+                                enableDismissFromEndToStart = true,
+                                gesturesEnabled = true,
+                                backgroundContent = {
+                                    BackgroundHolderWhenDelete()
+                                },
+                            ) {
+                                if (deletedMatch == selectedRoute) {
+                                    BackgroundHolderWhenDelete()
                                 } else {
-                                    true
+                                    RouteHolder(routeEntity = selectedRoute, navController)
                                 }
-                            },
-                        )
-
-                        // Используем SwipeToDismissBox
-                        SwipeToDismissBox(
-                            modifier = Modifier.fillMaxWidth(),
-                            state = swipeState,
-                            enableDismissFromStartToEnd = true,
-                            enableDismissFromEndToStart = true,
-                            gesturesEnabled = true,
-                            backgroundContent = {
-                                // Задний фон для смахивания
-                                BackgroundHolderWhenDelete()
-                            },
-                        ) {
-                            // Показываем Background только для удаляемого маршрута
-                            if (deletedMatch == selectedRoute) {
-                                BackgroundHolderWhenDelete()
-                            } else {
-                                RouteHolder(routeEntity = selectedRoute, navController)
                             }
                         }
                     }
@@ -220,32 +229,29 @@ fun RoutesBigScreen(viewModel: MyViewModel, navController: NavHostController) {
             }
         }
 
+        if (showDialog && deletedMatch != null) {
+            ConfirmationDialog(
+                title = stringResource(R.string.tittledeleteallert),
+                message = stringResource(R.string.areyousurewanttodeleteroute) + " ${deletedMatch?.recordRouteName}?",
+                confirmText = stringResource(R.string.delete),
+                dismissText = stringResource(R.string.cancel),
+                onConfirm = {
+                    coroutineScope.launch {
+                        deletedMatch?.let {
+                            viewModel.deleteRouteAndRecordNumberTogether(it.id)
+                        }
 
-
-    }
-
-    if (showDialog && deletedMatch != null) {
-        ConfirmationDialog(
-            title = stringResource(R.string.tittledeleteallert),
-            message = stringResource(R.string.areyousurewanttodeleteroute)+" ${deletedMatch?.recordRouteName}?",
-            confirmText = stringResource(R.string.delete),
-            dismissText = stringResource(R.string.cancel),
-            onConfirm = {
-                coroutineScope.launch {
-                //    Log.d("zzz","deletedMatch : ${deletedMatch!!.recordRouteName}")
-                    deletedMatch?.let {
-                        viewModel.deleteRouteAndRecordNumberTogether(it.id) }
-
+                        deletedMatch = null
+                    }
+                    showDialog = false
+                },
+                onDismiss = {
+                    showDialog = false
                     deletedMatch = null
                 }
-                showDialog = false
-            },
-            onDismiss = {
-                showDialog = false
-                deletedMatch = null
-            }
-        )
-    }}
+            )
+        }
+    }
 }
 
 
