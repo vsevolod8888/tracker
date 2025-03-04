@@ -114,7 +114,7 @@ fun MyCalendar(
                     MyWeekDays(it.name.first().toString().toUpperCase(Locale.ROOT))
                 },
                 header = { month, year ->
-                    MyTittle(month, year,
+                    MyTittleCalendar(month, year,
                         onClickPrevious = {
                             if (!isScrolling) {
                                 isScrolling = true
@@ -272,7 +272,7 @@ private fun DayView(
 
 
 @Composable
-private fun MyTittle(
+private fun MyTittleCalendar(
     month: Month,
     year: Int,
     onClickPrevious: () -> Unit,

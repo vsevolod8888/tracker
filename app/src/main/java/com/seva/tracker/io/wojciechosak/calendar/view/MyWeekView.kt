@@ -151,79 +151,6 @@ fun WeekView(
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MyWeekView(
-    startDate: LocalDate =
-        Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .toLocalDate(),
-    minDate: LocalDate = startDate.copy(day = 1).minus(3, DateTimeUnit.MONTH),
-    maxDate: LocalDate =
-        startDate.copy(day = monthLength(startDate.month, startDate.year))
-            .plus(3, DateTimeUnit.MONTH),
-    daysOffset: Int = 0,
-    showDaysBesideRange: Boolean = true,
-    calendarAnimator: MyCalendarAnimator = MyCalendarAnimator(startDate),
-    isActive: (LocalDate) -> Boolean = {
-        val today =
-            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toLocalDate()
-        today == it
-    },
-    modifier: Modifier = Modifier,
-    firstVisibleDate: (LocalDate) -> Unit = {},
-    day: @Composable (dayState: DayState) -> Unit = { state ->
-        weekDay(state) {
-            CalendarDay(
-                state,
-                modifier = Modifier.width(58.dp),
-            )
-        }
-    },
-) {
-    val minIndex = if (showDaysBesideRange) 0 else minDate.daysUntil(startDate)
-    val maxIndex = if (showDaysBesideRange) 100000 else startDate.daysUntil(maxDate)
-    val initialPageIndex = if (showDaysBesideRange) 100000/2 else minIndex + daysOffset
-    LaunchedEffect(Unit) {
-        calendarAnimator.setAnimationMode(MyCalendarAnimator.AnimationMode.WEEK)
-    }
-    val pagerState =
-        rememberPagerState(
-            initialPage = initialPageIndex,
-            pageCount = { minIndex + maxIndex },
-        )
-    HorizontalPager(
-        state = pagerState,
-        modifier = modifier,
-        userScrollEnabled = false
-    ) {
-        val index = it - initialPageIndex // week number
-        calendarAnimator.updatePagerState(pagerState)
-        firstVisibleDate(startDate.plus(index * 7, DateTimeUnit.DAY))
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            for (day in 0..6) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    val newDate = startDate.plus(index * 7 + day, DateTimeUnit.DAY)
-                    day(
-                        DayState(
-                            date = newDate,
-                            isActiveDay = isActive(newDate),
-                            enabled = true,
-                        ),
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun weekDay(
@@ -234,85 +161,6 @@ private fun weekDay(
     function()
 }
 
-
-
-
-/**
- * Class for animating the transition between dates in a calendar.
- *
- * @property startDate The initial start date of the calendar.
- */
-@OptIn(ExperimentalFoundationApi::class)
-class MyCalendarAnimator(private val startDate: LocalDate) {
-    enum class AnimationMode {
-        MONTH,
-        DAY,
-        WEEK,
-    }
-
-    private var pagerState: PagerState? = null
-
-    private var mode: AnimationMode = AnimationMode.MONTH
-
-    internal fun updatePagerState(pagerState: PagerState) {
-        this.pagerState = pagerState
-    }
-
-    internal fun setAnimationMode(mode: AnimationMode) {
-        this.mode = mode
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun animateTo(
-        target: LocalDate,
-        pageOffsetFraction: Float = 0f,
-        animationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-    ) {
-        val initialPage = 100000/2
-        val currentDate =
-            when (mode) {
-                AnimationMode.MONTH ->
-                    startDate.plus(
-                        (pagerState?.targetPage ?: 0) - initialPage,
-                        DateTimeUnit.MONTH,
-                    )
-
-                AnimationMode.DAY ->
-                    startDate.plus(
-                        (pagerState?.targetPage ?: 0) - initialPage,
-                        DateTimeUnit.DAY,
-                    )
-
-                AnimationMode.WEEK ->
-                    startDate.plus(
-                        (pagerState?.targetPage ?: 0) - initialPage,
-                        DateTimeUnit.WEEK,
-                    )
-            }
-        val targetDate =
-            target.run {
-                if (mode == AnimationMode.MONTH) {
-                    copy(day = currentDate.dayOfMonth)
-                } else {
-                    this
-                }
-            }
-        val diff = currentDate.periodUntil(targetDate)
-        val offset =
-            when (mode) {
-                AnimationMode.MONTH -> diff.months + diff.years * 12
-                AnimationMode.DAY -> currentDate.daysUntil(targetDate)
-                AnimationMode.WEEK -> floor(currentDate.daysUntil(targetDate) / 7f).toInt()
-            }
-        if (initialPage + offset > 0){
-            pagerState?.animateScrollToPage(
-                page = (pagerState?.settledPage ?: initialPage) + offset,
-                pageOffsetFraction = pageOffsetFraction,
-                animationSpec = animationSpec,
-            )
-        }
-    }
-}
 
 data class DayState(
     val date: LocalDate,
@@ -329,13 +177,6 @@ fun isLeapYear(year: Int): Boolean = try {
     false
 }
 
-/**
- * Calculates the length (number of days) of a given month in a specified year.
- *
- * @param month The month for which to determine the length.
- * @param year The year in which the month occurs.
- * @return The length of the month in days.
- */
 @RequiresApi(Build.VERSION_CODES.O)
 fun monthLength(
     month: Month,
@@ -362,11 +203,6 @@ fun LocalDate.copy(
     LocalDate(year, month, monthLength(month, year))
 }
 
-/**
- * Returns the current date.
- *
- * @return The current date.
- */
 fun LocalDate.Companion.today(): LocalDate = Clock.System.now()
     .toLocalDateTime(TimeZone.currentSystemDefault())
     .toLocalDate()
