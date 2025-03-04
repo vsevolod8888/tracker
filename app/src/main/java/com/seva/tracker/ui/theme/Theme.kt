@@ -15,21 +15,21 @@ private val DarkColorScheme = darkColorScheme(
     primary = Black,
     surface = ToolBarColorDark,
     onSurface = White,
+    errorContainer = ErrorContainerColourRedDark,
+    onTertiaryContainer = TertiaryRed,
 
 
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = White,
     surface = ToolBarColorLight,
     onSurface = Black,
+    errorContainer = ErrorContainerColourRedLight,
+    onTertiaryContainer = TertiaryRed,
 
 
-
-    secondary = PurpleGrey40,
-    tertiary = Pink40
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

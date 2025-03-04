@@ -20,13 +20,6 @@ fun MyFloatingActionButton(navController: NavHostController, onClickMyFloatingAc
         NavigationItem.RoutesSmallCalendar.route -> {
             FloatingActionButton(onClick = {
                 onClickMyFloatingActionButton()
-//                if (selectedRoute != null) {
-//                    navController.navigate("${NavigationItem.MapDraw.route}/Default") {
-//                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-//                        launchSingleTop = true
-//                        restoreState = true
-//                    }
-//                }
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Карта")
             }

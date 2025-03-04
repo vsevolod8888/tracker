@@ -4,6 +4,9 @@ import androidx.compose.ui.graphics.Color
 val Black = Color(0xFF000000)
 val ToolBarColorDark = Color(0xFF313131)
 val ToolBarColorLight = Color(0xFFD7D7D7)
+val ErrorContainerColourRedDark = Color(0xFF6B4B4B)
+val ErrorContainerColourRedLight = Color(0xFFFFA9A9)
+val TertiaryRed = Color(0xFFFF0000)
 
 
 

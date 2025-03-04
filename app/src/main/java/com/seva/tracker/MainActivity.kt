@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.isThemeDark.collect { isDarkTheme ->
                     enableEdgeToEdge(
                         statusBarStyle = if (isDarkTheme) {
-                            SystemBarStyle.dark(Color.TRANSPARENT,) // Темная тема – светлые значки
+                            SystemBarStyle.dark(Color.TRANSPARENT,)
                         } else {
                             SystemBarStyle.light(Color.TRANSPARENT, darkScrim = Color.TRANSPARENT) // Светлая тема – темные значки
                         }

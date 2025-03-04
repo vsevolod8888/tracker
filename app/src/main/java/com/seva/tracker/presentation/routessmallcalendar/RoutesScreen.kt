@@ -57,8 +57,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.seva.tracker.R
 import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.io.wojciechosak.calendar.view.CalendarDa
-import com.seva.tracker.io.wojciechosak.calendar.view.MyCalendar
-import com.seva.tracker.io.wojciechosak.calendar.view.MyWeekView
 import com.seva.tracker.io.wojciechosak.calendar.view.WeekView
 import com.seva.tracker.io.wojciechosak.calendar.view.isDateInRange
 import com.seva.tracker.io.wojciechosak.calendar.view.today
@@ -198,13 +196,13 @@ fun RoutesScreen(viewModel: MyViewModel, navController: NavHostController) {
                 isActive = { it == selectedDay },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp)
+                    .height(50.dp)
             ) { state ->
 
                 CalendarDa(
                     state = state,
                     modifier = Modifier
-                        .height(30.dp)
+                        .height(50.dp)
                         .fillMaxWidth(
                             fraction = when {
                                 isDateInRange(state.date) -> {
