@@ -30,7 +30,8 @@ fun ConfirmationDialog(
         confirmButton = {
             UniversalButtonForDialog(
                 text = confirmText,
-                onClick = onConfirm
+                onClick = onConfirm,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             )
         },
         dismissButton = {

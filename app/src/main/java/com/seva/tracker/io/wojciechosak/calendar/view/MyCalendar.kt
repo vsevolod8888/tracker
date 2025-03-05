@@ -30,7 +30,11 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,9 +50,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seva.tracker.R
+import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.INITIAL_PAGE_INDEX
 import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.MAX_PAGES
@@ -281,42 +287,38 @@ private fun MyTittleCalendar(
     Row(
         modifier = Modifier.padding(bottom = 20.dp)
             .fillMaxWidth()
-            .height(60.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .border(
-                1.dp, Color.White, RoundedCornerShape(20.dp)
-            ).background(Color.White),
+            .height(60.dp),
+//            .clip(RoundedCornerShape(20.dp))
+//            .border(
+//                1.dp, Color.White, RoundedCornerShape(20.dp)
+//            ).background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_settings),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(start = 6.dp)
-                .size(48.dp)
-                .clickable { onClickPrevious() }
-        )
+//        Image(
+//            painter = painterResource(R.drawable.ic_settings),
+//            contentDescription = "",
+//            contentScale = ContentScale.Crop,
+//            modifier = Modifier
+//                .padding(start = 6.dp)
+//                .size(48.dp)
+//                .clickable { onClickPrevious() }
+//        )
+        Icon(painterResource(R.drawable.arrow_left), contentDescription = stringResource(R.string.prevmonth),modifier = Modifier.padding(start = 6.dp).size(48.dp)
+            .clickable { onClickPrevious() }, tint = MaterialTheme.colorScheme.primaryContainer)
         Text(
             text = month.name.capitalize() + ", " + year,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .weight(1f),
-            color = Color.Red,
-          //  style = TextStyleLocal.headerSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = TextStyleLocal.headerSmall,
             textAlign = TextAlign.Center
         )
-        Image(
-            painter = painterResource(id = R.drawable.ic_notes),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(end = 6.dp)
-                .size(48.dp)
-                .clickable { onClickNext() }
-        )
+
+        Icon(painterResource(R.drawable.arrow_right), contentDescription = stringResource(R.string.nextmonth),modifier = Modifier.padding(end = 6.dp).size(48.dp)
+            .clickable { onClickNext() }, tint = MaterialTheme.colorScheme.primaryContainer)
     }
 }
 

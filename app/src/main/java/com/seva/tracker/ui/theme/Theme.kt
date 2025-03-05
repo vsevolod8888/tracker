@@ -1,6 +1,5 @@
 package com.seva.tracker.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -17,9 +16,8 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = White,
     errorContainer = ErrorContainerColourRedDark,
     onTertiaryContainer = TertiaryRed,
-
-
-
+    primaryContainer = Purple40Dark,
+    onPrimaryContainer = White,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -28,8 +26,8 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Black,
     errorContainer = ErrorContainerColourRedLight,
     onTertiaryContainer = TertiaryRed,
-
-
+    primaryContainer = Purple80Light,
+    onPrimaryContainer = Black,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
