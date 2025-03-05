@@ -18,5 +18,8 @@
     <string name="newroute">New route </string>
     <string name="drawroute">Draw route</string>
     <string name="sound">Sound</string>
+    <string name="addroute">Add route</string>
+    <string name="prevmonth">Previous Month</string>
+    <string name="nextmonth">Next Month</string>
 
 </resources>
