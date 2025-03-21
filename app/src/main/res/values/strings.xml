@@ -8,6 +8,8 @@
 
     <string name="tittledeleteallert">Delete route</string>
     <string name="areyousurewanttodeleteroute">Are you sure you want to delete the route:</string>
+    <string name="tittledeletalldialog">Delete all</string>
+    <string name="areyousurewanttodeleteallroutes">Delete all routes?</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="create">Create</string>
@@ -21,5 +23,33 @@
     <string name="addroute">Add route</string>
     <string name="prevmonth">Previous Month</string>
     <string name="nextmonth">Next Month</string>
+    <string name="themelightdark">ThemeLight/Dark</string>
+    <string name="deleteallroutes">Delete all routes</string>
+    <string name="notifications">Notifications</string>
+    <string name="showallroutes">Show all routes</string>
+    <string name="therearenoroutesonthisdate">There are no routes on this date</string>
+    <string name="therearenoroutesfortoday">There are no routes for today</string>
+    <string name="clickwindowtodeleteroute">Click to delete</string>
+    <string name="nointernetconnection">No internet connection</string>
+    <string name="km">km</string>
+    <string name="meters">m</string>
+    <string name="conti">Continue</string>
+    <string name="save">Save</string>
+    <string name="coordinates">Координаты</string>
+    <string name="ostanovit">Stop</string>
+
+    <string name="january">Jan</string>
+    <string name="february">Feb</string>
+    <string name="march">Mar</string>
+    <string name="april">Apr</string>
+    <string name="may">May</string>
+    <string name="june">Jun</string>
+    <string name="july">Jul</string>
+    <string name="august">Aug</string>
+    <string name="september">Sep</string>
+    <string name="october">Oct</string>
+    <string name="november">Nov</string>
+    <string name="december">Dec</string>
+
 
 </resources>

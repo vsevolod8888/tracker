@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,32 +26,20 @@ import com.seva.tracker.R
 fun BackgroundHolderWhenDelete (){
     Row(
         modifier = Modifier
-            .padding(start = 20.dp, top = 5.dp, end = 20.dp)
+            //.padding(start = 20.dp, top = 5.dp, end = 20.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .height(50.dp)
-            .background(colorResource(id = R.color.black)),
+            .height(50.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.Center
     ) {
         // Иконки для смахивания
-        Image(
-            painter = painterResource(id = R.drawable.ic_settings),
+        Icon(
+            painter = painterResource(id = R.drawable.ic_delete_sweep),
             contentDescription = "",
-            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .padding(10.dp)
-                .height(30.dp)
-                .width(30.dp)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_settings),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(10.dp)
-                .height(30.dp)
-                .width(30.dp)
+                .size(30.dp),
+            tint = MaterialTheme.colorScheme.onTertiaryContainer,
         )
     }
 }

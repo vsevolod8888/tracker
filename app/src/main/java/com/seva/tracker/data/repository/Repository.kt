@@ -15,4 +15,6 @@ interface Repository {
     suspend fun deleteRouteAndRecordNumberTogether(id: Long)
     fun allRoutesFlow(): Flow<List<RouteEntity>>
     suspend fun routeById(routeId: Long): RouteEntity?
+    suspend fun deleteAllRoutesAndCoords()
+    fun getOnlyIdList(): Flow<List<Long>>
 }

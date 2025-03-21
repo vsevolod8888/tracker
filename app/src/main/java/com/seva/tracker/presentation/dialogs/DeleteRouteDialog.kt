@@ -1,7 +1,6 @@
 package com.seva.tracker.presentation.dialogs
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -9,13 +8,12 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ConfirmationDialog(
+fun DeleteRouteDialog(
     title: String,
     message: String,
     confirmText: String,
@@ -31,6 +29,7 @@ fun ConfirmationDialog(
             UniversalButtonForDialog(
                 text = confirmText,
                 onClick = onConfirm,
+                containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             )
         },
@@ -38,16 +37,17 @@ fun ConfirmationDialog(
             UniversalButtonForDialog(
                 text = dismissText,
                 onClick = onDismiss,
+
+                containerColor = MaterialTheme.colorScheme.surface,
             )
         },
-        containerColor = MaterialTheme.colorScheme.errorContainer,
+        containerColor = MaterialTheme.colorScheme.surface,
         iconContentColor = MaterialTheme.colorScheme.onSurface,
         titleContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
         textContentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 18.dp,
     )
 }
-
 
 
 @Composable

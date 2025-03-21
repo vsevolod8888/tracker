@@ -6,6 +6,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -26,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.seva.tracker.ui.theme.TrackerTheme
@@ -40,12 +41,14 @@ import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.routessmallcalendar.RoutesScreen
 import com.seva.tracker.presentation.settings.SettingsScreen
-import com.seva.tracker.presentation.dialogs.RouteConfirmationDialog
+import com.seva.tracker.presentation.dialogs.NewRouteDialog
 import com.seva.tracker.presentation.floatactionbutton.MyFloatingActionButton
+import com.seva.tracker.presentation.mapAllRoutes.MapAllRoutesScreen
 import com.seva.tracker.presentation.mapNewRoute.MapNewRouteScreen
 import com.seva.tracker.presentation.mapReady.MapReadyScreen
 import com.seva.tracker.presentation.routesbigcalendar.RoutesBigScreen
 import com.seva.tracker.service.CounterService
+import com.seva.tracker.utils.makeToastNoInternet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -55,47 +58,53 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val viewModel: MyViewModel by viewModels()
 
-
-
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-         //  enableEdgeToEdge()
-               //  window.statusBarColor = ContextCompat.getColor(this, R.color.black)
-            //    enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
+        //  enableEdgeToEdge()
+        //  window.statusBarColor = ContextCompat.getColor(this, R.color.black)
+        //    enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
         setContent {
             val isDarkTheme by viewModel.isThemeDark.collectAsState()
             lifecycleScope.launch {
                 viewModel.isThemeDark.collect { isDarkTheme ->
                     enableEdgeToEdge(
                         statusBarStyle = if (isDarkTheme) {
-                            SystemBarStyle.dark(Color.TRANSPARENT,)
+                            SystemBarStyle.dark(Color.TRANSPARENT)
                         } else {
-                            SystemBarStyle.light(Color.TRANSPARENT, darkScrim = Color.TRANSPARENT) // Светлая тема – темные значки
+                            SystemBarStyle.light(
+                                Color.TRANSPARENT, darkScrim = Color.TRANSPARENT
+                            ) // Светлая тема – темные значки
                         }
                     )
                 }
             }
-            TrackerTheme (darkTheme = isDarkTheme){
+            TrackerTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 var showDialog by remember { mutableStateOf(false) }
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    floatingActionButton = {
-                        MyFloatingActionButton(navController, onClickMyFloatingActionButton = {
-                            showDialog = true
-                        })
-                    }
-                ) {
-                    NavigationGraph(navController, Modifier.padding(0.dp), viewModel,
+                val isNetworkAvailable = viewModel.isNetworkAvailable.collectAsState()
+                Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
+                    MyFloatingActionButton(navController,
+                        onClickMyFloatingActionButton = {
+                             if(isNetworkAvailable.value)
+                        showDialog = true
+                            else
+                                makeToastNoInternet(baseContext)
+                    })
+                }) {
+                    NavigationGraph(navController,
+                        Modifier,
+                        viewModel,
                         showDialog = showDialog, // 🔥 Передаем showDialog в NavigationGraph
                         onShowDialogChange = { showDialog = it })
                 }
             }
         }
     }
+
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -119,10 +128,10 @@ fun NavigationGraph(
     var pendingAction: (() -> Unit)? by remember { mutableStateOf(null) }
     var scope = rememberCoroutineScope()
 
+
     // 🔥 Показываем диалог, если showDialog = true
     if (showDialog) {
-        RouteConfirmationDialog(
-            title = stringResource(R.string.routes),
+        NewRouteDialog(title = stringResource(R.string.routes),
             message = stringResource(R.string.enteraroutenameandselectanaction),
             routeName = myRouteName,
             onRouteNameChange = { myRouteName = it },
@@ -130,8 +139,10 @@ fun NavigationGraph(
                 pendingAction = {
                     scope.launch {
                         viewModel.saveRouteName(myRouteName)
-                        navController.navigate("${NavigationItem.MapNew.route}/$myRouteName") {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        navController.navigate("${NavigationItem.MapNew.route}/$myRouteName"){
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -171,8 +182,7 @@ fun NavigationGraph(
             onDismiss = {
                 onShowDialogChange(false) // 🔥 Закрываем диалог
                 navController.popBackStack()
-            }
-        )
+            })
     }
 
 
@@ -189,25 +199,23 @@ fun NavigationGraph(
     }
 
     if (requestLocation) {
-        LocationPermissionHandler(
-            onPermissionResult = { isGranted ->
-                locationPermission = isGranted
-                if (isGranted) {
-                    requestLocation = false
-                    if (!backgroundPermission) {
-                        requestBackgroundLocation = true
-                    }
+        LocationPermissionHandler(onPermissionResult = { isGranted ->
+            locationPermission = isGranted
+            if (isGranted) {
+                requestLocation = false
+                if (!backgroundPermission) {
+                    requestBackgroundLocation = true
                 }
-            },
-            onLocationReceived = { location ->
-
             }
-        )
+        }, onLocationReceived = { location ->
+
+        })
     }
 
     if (requestBackgroundLocation) {
         BackGroundLocationPermissionHandler { isGranted ->
             backgroundPermission = isGranted
+            Log.d("vvv","isGranted $isGranted")
 
             if (isGranted) {
                 requestBackgroundLocation = false
@@ -222,7 +230,11 @@ fun NavigationGraph(
         startDestination = NavigationItem.RoutesSmallCalendar.route,
         modifier = modifier
     ) {
-        composable(NavigationItem.RoutesSmallCalendar.route) { RoutesScreen(viewModel, navController) }
+        composable(NavigationItem.RoutesSmallCalendar.route) {
+            RoutesScreen(
+                viewModel, navController
+            )
+        }
         composable(NavigationItem.Settings.route) { SettingsScreen(viewModel, navController) }
         composable("${NavigationItem.MapDraw.route}/{routeName}") { backStackEntry ->
             val routeName = backStackEntry.arguments?.getString("routeName")
@@ -232,9 +244,17 @@ fun NavigationGraph(
             val routeName = backStackEntry.arguments?.getString("routeName")
             MapNewRouteScreen(viewModel, navController, routeName)
         }
-        composable(NavigationItem.RoutesBigCalendar.route) { RoutesBigScreen(viewModel, navController) }
+        composable(NavigationItem.MapAll.route) { backStackEntry ->
+            MapAllRoutesScreen(viewModel, navController)
+        }
+        composable(NavigationItem.RoutesBigCalendar.route) {
+            RoutesBigScreen(
+                viewModel, navController
+            )
+        }
         composable("${NavigationItem.MapReady.route}/{routeId}/{recordRouteName}") { backStackEntry ->
-            val routeId = backStackEntry.arguments?.getString("routeId")?.toLongOrNull() ?: return@composable
+            val routeId =
+                backStackEntry.arguments?.getString("routeId")?.toLongOrNull() ?: return@composable
             val recordRouteName = backStackEntry.arguments?.getString("recordRouteName") ?: ""
             MapReadyScreen(viewModel, navController, routeId, recordRouteName)
         }

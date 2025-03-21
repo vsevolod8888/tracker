@@ -1,6 +1,5 @@
 package com.seva.tracker.data.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -17,6 +16,9 @@ interface CoordDao {
 
     @Query("DELETE FROM route")
     suspend fun deleteAllRoutes()
+
+    @Query("DELETE FROM coord")
+    suspend fun deleteAllCoords()
 
     @Query("DELETE FROM route WHERE id = :id")
     suspend fun deleteRouteById(id: Long)
@@ -37,11 +39,7 @@ interface CoordDao {
     @Insert//(onConflict = OnConflictStrategy.)
     suspend fun insertCoord(c: CoordinatesEntity)
 
-    @Query("DELETE FROM coord")
-    suspend fun clear()
 
-    @Query("DELETE FROM route")
-    suspend fun clear2()
 
     @Query("SELECT * FROM coord ORDER BY id DESC LIMIT 1")
     suspend fun lastCoord(): CoordinatesEntity?
@@ -61,7 +59,7 @@ interface CoordDao {
     fun getOnlyRecordNumbersList(): Flow<List<Int?>>
 
     @Query("SELECT DISTINCT id FROM route ORDER BY id ")
-    suspend fun getOnlyIdList(): List<Long>
+    fun getOnlyIdList(): Flow<List<Long>>
 
     @Query("SELECT COUNT (*) FROM coord")
     suspend fun getCountNumberOfRecords(): Int
