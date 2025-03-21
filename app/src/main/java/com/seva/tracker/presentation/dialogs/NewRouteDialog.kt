@@ -12,12 +12,11 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.seva.tracker.R
 
 @Composable
-fun RouteConfirmationDialog(
+fun NewRouteDialog(
     title: String,
     message: String,
     routeName: String,

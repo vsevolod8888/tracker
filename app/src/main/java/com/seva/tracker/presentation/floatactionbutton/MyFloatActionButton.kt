@@ -27,7 +27,7 @@ fun MyFloatingActionButton(navController: NavHostController, onClickMyFloatingAc
             FloatingActionButton(modifier = Modifier.size(60.dp), onClick = {
                 onClickMyFloatingActionButton()
             },
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,//.copy(alpha = 0.5f),
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.addroute),modifier = Modifier.size(40.dp))
             }

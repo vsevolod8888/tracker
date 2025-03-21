@@ -17,6 +17,7 @@ class RepositoryImpl @Inject constructor(
 
     override val isConnectedFlow = connectivityManager.connectionAsStateFlow
 
+
     override suspend fun updateFutureMatches() {
         if (!connectivityManager.isConnected) {
             return
@@ -51,5 +52,14 @@ class RepositoryImpl @Inject constructor(
     }
     override suspend fun routeById(routeId: Long): RouteEntity?{
         return databasse.dao.routeById(routeId)
+    }
+    override suspend fun deleteAllRoutesAndCoords(){
+        databasse.withTransaction {
+            databasse.dao.deleteAllRoutes()
+            databasse.dao.deleteAllCoords()
+        }
+    }
+    override fun getOnlyIdList(): Flow<List<Long>>{
+        return databasse.dao.getOnlyIdList()
     }
 }

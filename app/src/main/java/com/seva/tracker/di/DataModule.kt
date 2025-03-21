@@ -6,6 +6,7 @@ import androidx.room.Room
 import com.seva.tracker.data.repository.Repository
 import com.seva.tracker.data.repository.impl.RepositoryImpl
 import com.seva.tracker.data.room.Database
+import com.seva.tracker.data.room.MIGRATION_1_2
 import com.seva.tracker.internetconnection.MyConnectivityManager
 import dagger.Binds
 import dagger.Module
@@ -29,7 +30,8 @@ class DataModule {
             "data"
         )
             .allowMainThreadQueries()
-            .fallbackToDestructiveMigration()
+            //   .fallbackToDestructiveMigration()
+            .addMigrations(MIGRATION_1_2)
             .build()
 
     }

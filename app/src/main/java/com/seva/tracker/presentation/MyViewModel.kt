@@ -1,6 +1,9 @@
 package com.seva.tracker.presentation
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,7 +30,7 @@ class MyViewModel @Inject constructor(
     @ApplicationContext context: Context
 ) : ViewModel() {
     var jobCurrentWeek: Job? = null
-    private val isNetworkAvailable: StateFlow<Boolean> = repository.isConnectedFlow
+    val isNetworkAvailable: StateFlow<Boolean> = repository.isConnectedFlow
 
     private var numbOfRecord: Long? = null
 
@@ -49,7 +52,7 @@ class MyViewModel @Inject constructor(
 //        }
     }
 
-    val routeId: StateFlow<Long> = settingsData.route_id
+    val routeId: StateFlow<Long> = settingsData.routeId
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0L)
 
     suspend fun updateRouteId(newId: Long) {
@@ -80,12 +83,13 @@ class MyViewModel @Inject constructor(
         repository.insertCoord(newcoord)
     }
 
-    suspend fun saveDrawRoute(nameOfDrRoute: String, numbOfRecord: Long) {
+    suspend fun saveDrawRoute(nameOfDrRoute: String, numbOfRecord: Long, lenght:String) {
         var epochDays  = numbOfRecord/86400000
         val newRoute =
             RouteEntity(
                 id = numbOfRecord,
                 epochDays = epochDays.toInt(),
+                lenght = lenght,
                 isDrawing = true,
                 checkTime = System.currentTimeMillis(),
                 recordRouteName = nameOfDrRoute,
@@ -93,7 +97,6 @@ class MyViewModel @Inject constructor(
             )
         repository.insertRoute(newRoute)
     }
-
 
     fun coordtListLiveFlow(routeId: Long): Flow<List<CoordinatesEntity>> {
         return repository.coordtListLiveFlow(routeId)
@@ -116,5 +119,20 @@ class MyViewModel @Inject constructor(
     suspend fun updateTheme(theme: Boolean) {
         Log.d("vvv", "viewmodel updateTheme $theme")
         settingsData.saveIsThemeDarkDataStore(theme)
+    }
+    suspend fun deleteAllRoutesAndCoords(){
+        repository.deleteAllRoutesAndCoords()
+    }
+
+    fun goToSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = Uri.parse("package:${context.packageName}")
+        }
+        context.startActivity(intent)
+    }
+
+    fun getOnlyIdList(): Flow<List<Long>>{
+        return repository.getOnlyIdList()
     }
 }

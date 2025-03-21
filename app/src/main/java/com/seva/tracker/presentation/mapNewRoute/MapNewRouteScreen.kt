@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.android.gms.location.LocationServices
@@ -43,17 +46,24 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.seva.tracker.R
+import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.mapDraw.calculateRouteLength
 import com.seva.tracker.service.CounterService
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MapNewRouteScreen(viewModel: MyViewModel, navController: NavHostController,routeName:String?) {
+fun MapNewRouteScreen(
+    viewModel: MyViewModel,
+    navController: NavHostController,
+    routeName: String?
+) {
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
-    var routeLength by remember { mutableStateOf(0.0) }
+    var routeLength by remember { mutableStateOf("") }
     var scope = rememberCoroutineScope()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -67,10 +77,12 @@ fun MapNewRouteScreen(viewModel: MyViewModel, navController: NavHostController,r
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
     }
-    val markers = remember { mutableStateListOf<MarkerState>() }
+    // val markers = remember { mutableStateListOf<MarkerState>() }
+    val lastMarker = remember { mutableStateOf<MarkerState?>(null) }
 
     var markerLatLngList by remember { mutableStateOf(emptyList<LatLng>()) }
-
+    val kmText = stringResource(R.string.km)
+    val metersText = stringResource(R.string.meters)
 
     val routeId by viewModel.routeId.collectAsState()
 
@@ -81,17 +93,15 @@ fun MapNewRouteScreen(viewModel: MyViewModel, navController: NavHostController,r
         }
     }
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
+
     LaunchedEffect(coordinates) {
-
-        markers.clear()
-
+        //      markers.clear()
         markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
 
         if (markerLatLngList.isNotEmpty()) {
             val markerState = MarkerState(position = markerLatLngList.first())
-            markers.add(markerState)
-            routeLength = calculateRouteLength(markerLatLngList)
-            markers.addAll(markerLatLngList.map { MarkerState(position = it) })
+            lastMarker.value = MarkerState(position = markerState.position)
+            routeLength = calculateRouteLength(markerLatLngList, kmText, metersText)
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLngZoom(markerLatLngList.last(), 15f),
                 durationMs = 200
@@ -123,49 +133,78 @@ fun MapNewRouteScreen(viewModel: MyViewModel, navController: NavHostController,r
         }
     }
 
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.surface
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
-            onMapClick = {}
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
+                onMapClick = {}
+            ) {
 
-            markers.forEach { markerState ->
-                Marker(
-                    state = markerState,
-                    title = "New Marker"
-                )
-            }
-            if (markerLatLngList.size > 1) {
-                Polyline(
-                    points = markerLatLngList,
-                    color = Color.Blue,
-                    width = 5f
-                )
-            }
-        }
-        Column (modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween){
-            Text(
-                text = "$routeName: ${"%.2f".format(routeLength)} meters",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black,
-                modifier = Modifier.padding(16.dp)
-            )
-            Button(onClick = {
-                scope.launch {
-                    stopService(context)
-                    navController.popBackStack()
+//                markers.forEach { markerState ->
+//                    Marker(
+//                        state = markerState,
+//                        title = "New Marker"
+//                    )
+//                }
+                lastMarker.value?.let { markerState ->
+                    Marker(
+                        state = markerState,
+                        title = "Last Marker"
+                    )
                 }
 
-            }) {
+                if (markerLatLngList.size > 1) {
+                    Polyline(
+                        points = markerLatLngList,
+                        color = Color.Blue,
+                        width = 5f
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "Save",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = routeLength,
+                    style = TextStyleLocal.semibold18,
                     color = Color.Black,
                     modifier = Modifier.padding(16.dp)
                 )
+                Button(
+
+                    modifier = Modifier.padding(16.dp),
+                    onClick = {
+                        scope.launch {
+                            stopService(context)
+                            navController.popBackStack()
+                        }
+
+                    },
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.save),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
     }
@@ -180,7 +219,7 @@ fun MapNewRouteScreen(viewModel: MyViewModel, navController: NavHostController,r
 @SuppressLint("SuspiciousIndentation")
 fun stopService(context: Context) {
     val intent = Intent(context, CounterService::class.java)
-        context.stopService(intent)
+    context.stopService(intent)
 }
 
 

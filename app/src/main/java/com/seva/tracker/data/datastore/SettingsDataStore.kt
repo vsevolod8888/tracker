@@ -13,63 +13,132 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 @OptIn(DelicateCoroutinesApi::class)
-class SettingsDataStore @Inject constructor(@ApplicationContext private val context: Context){
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var instance: SettingsDataStore? = null
-    }
+class SettingsDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
-    private object PreferencesKeys{
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+    private object PreferencesKeys {
         val KEY_ROUTENAME = stringPreferencesKey("key_routename")
         val KEY_PHOTO_AVATAR = stringPreferencesKey("key_photo_avatar")
         val KEY_ROUTE_ID = longPreferencesKey("key_route_id")
         val KEY_THEME = booleanPreferencesKey("key_theme")
-
     }
 
-    var route_id: Flow<Long> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0L
-    }
-    suspend fun saveRouteId(value: Long){
-        Log.d("zzz", "saveRouteId DataStore ${value}")
+    val routeId: Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            try {
+                preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0L
+            } catch (e: ClassCastException) {
+                val oldValue = preferences.asMap()[PreferencesKeys.KEY_ROUTE_ID] as? Int
+                if (oldValue != null) {
+                    context.dataStore.edit { it[PreferencesKeys.KEY_ROUTE_ID] = oldValue.toLong() }
+                    oldValue.toLong()
+                } else {
+                    0L
+                }
+            }
+        }
+        .distinctUntilChanged() // Эмитить только при изменении
+
+    suspend fun saveRouteId(value: Long) {
+        Log.d("zzz", "saveRouteId DataStore $value")
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_ROUTE_ID] = value
         }
     }
 
-    var photoAvatarDataStore: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_PHOTO_AVATAR] ?: ""
-    }
-    suspend fun savePhotoAvatarDataStore(value: String){
+    val photoAvatar: Flow<String> = context.dataStore.data
+        .map { preferences -> preferences[PreferencesKeys.KEY_PHOTO_AVATAR] ?: "" }
+        .distinctUntilChanged()
+
+    suspend fun savePhotoAvatar(value: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_PHOTO_AVATAR] = value
         }
     }
 
-    var routenameDataStore: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_ROUTENAME] ?: ""
-    }
+    val routenameDataStore: Flow<String> = context.dataStore.data
+        .map { preferences -> preferences[PreferencesKeys.KEY_ROUTENAME] ?: "" }
+        .distinctUntilChanged()
 
-    suspend fun saveRouteNameDataStore(value: String){
+    suspend fun saveRouteNameDataStore(value: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_ROUTENAME] = value
         }
     }
 
-    var isThemeDarkDataStore: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.KEY_THEME] ?: false
-    }
-    suspend fun saveIsThemeDarkDataStore(value: Boolean){
+    val isThemeDarkDataStore: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[PreferencesKeys.KEY_THEME] ?: false }
+        .distinctUntilChanged()
+
+    suspend fun saveIsThemeDarkDataStore(value: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_THEME] = value
         }
     }
 }
+
+
+//@Singleton
+//@OptIn(DelicateCoroutinesApi::class)
+//class SettingsDataStore @Inject constructor(@ApplicationContext private val context: Context){
+//    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+//    companion object {
+//        @SuppressLint("StaticFieldLeak")
+//        @Volatile
+//        private var instance: SettingsDataStore? = null
+//    }
+//
+//    private object PreferencesKeys{
+//        val KEY_ROUTENAME = stringPreferencesKey("key_routename")
+//        val KEY_PHOTO_AVATAR = stringPreferencesKey("key_photo_avatar")
+//        val KEY_ROUTE_ID = longPreferencesKey("key_route_id")
+//        val KEY_THEME = booleanPreferencesKey("key_theme")
+//
+//    }
+//
+//    var route_id: Flow<Long> = context.dataStore.data.map { preferences ->
+//        preferences[PreferencesKeys.KEY_ROUTE_ID] ?: 0L
+//    }
+//    suspend fun saveRouteId(value: Long){
+//        Log.d("zzz", "saveRouteId DataStore ${value}")
+//        context.dataStore.edit { preferences ->
+//            preferences[PreferencesKeys.KEY_ROUTE_ID] = value
+//        }
+//    }
+//
+//    var photoAvatarDataStore: Flow<String> = context.dataStore.data.map { preferences ->
+//        preferences[PreferencesKeys.KEY_PHOTO_AVATAR] ?: ""
+//    }
+//    suspend fun savePhotoAvatarDataStore(value: String){
+//        context.dataStore.edit { preferences ->
+//            preferences[PreferencesKeys.KEY_PHOTO_AVATAR] = value
+//        }
+//    }
+//
+//    var routenameDataStore: Flow<String> = context.dataStore.data.map { preferences ->
+//        preferences[PreferencesKeys.KEY_ROUTENAME] ?: ""
+//    }
+//
+//    suspend fun saveRouteNameDataStore(value: String){
+//        context.dataStore.edit { preferences ->
+//            preferences[PreferencesKeys.KEY_ROUTENAME] = value
+//        }
+//    }
+//
+//    var isThemeDarkDataStore: Flow<Boolean> = context.dataStore.data.map { preferences ->
+//        preferences[PreferencesKeys.KEY_THEME] ?: false
+//    }
+//    suspend fun saveIsThemeDarkDataStore(value: Boolean){
+//        context.dataStore.edit { preferences ->
+//            preferences[PreferencesKeys.KEY_THEME] = value
+//        }
+//    }
+//}

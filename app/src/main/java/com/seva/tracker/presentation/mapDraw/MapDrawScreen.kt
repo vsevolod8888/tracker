@@ -2,8 +2,6 @@ package com.seva.tracker.presentation.mapDraw
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,12 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.android.gms.location.LocationServices
@@ -36,17 +36,20 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.seva.tracker.R
+import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
 
 import kotlinx.coroutines.launch
 
 @Composable
-fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,routeName:String?) {
+fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, routeName: String?) {
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
-    var routeLength by remember { mutableStateOf(0.0) }
+    var routeLength by remember { mutableStateOf("") }
     var scope = rememberCoroutineScope()
+    val lastMarker = remember { mutableStateOf<MarkerState?>(null) }
 
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -55,7 +58,7 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,route
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
     }
-    val markers = remember { mutableStateListOf<MarkerState>() }
+    // val markers = remember { mutableStateListOf<MarkerState>() }
 
     var markerLatLngList by remember { mutableStateOf(emptyList<LatLng>()) }
 
@@ -66,14 +69,18 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,route
         if (routeId == 0L) {
             viewModel.updateRouteId(System.currentTimeMillis())
         }
-    //    Log.d("zzz"," name : ${routeName})")
-   }
+        //    Log.d("zzz"," name : ${routeName})")
+    }
+    val kmText = stringResource(R.string.km)
+    val metersText = stringResource(R.string.meters)
+
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
     LaunchedEffect(coordinates) {
-        markers.clear()
+
+        //  markers.clear()
         markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
-        routeLength = calculateRouteLength(markerLatLngList)
-        markers.addAll(markerLatLngList.map { MarkerState(position = it) })
+        routeLength = calculateRouteLength(markerLatLngList, kmText, metersText)
+        //   markers.addAll(markerLatLngList.map { MarkerState(position = it) })
 
         if (markerLatLngList.isNotEmpty()) {
             cameraPositionState.animate(
@@ -86,14 +93,15 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,route
     LocationPermissionHandler(
         onPermissionResult = { isGranted -> locationPermissionGranted = isGranted },
         onLocationReceived = { latLng ->
-            Log.d("zzz"," location : ${latLng.latitude}, ${latLng.longitude},${routeName})")
+            Log.d("zzz", " location : ${latLng.latitude}, ${latLng.longitude},${routeName})")
             cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
         }
     )
 
     val onMapClick: (LatLng) -> Unit = { latLng ->
         val markerState = MarkerState(position = latLng)
-        markers.add(markerState)
+        //   markers.add(markerState)
+        lastMarker.value = MarkerState(position = markerState.position)
 
         scope.launch {
             viewModel.saveDrawCoord(
@@ -108,63 +116,90 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,route
         markerLatLngList = markerLatLngList + latLng
 
         // Пересчитываем длину маршрута
-            // routeLength = calculateRouteLength(markerLatLngList)
+        // routeLength = calculateRouteLength(markerLatLngList)
 
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Отображаем карту
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
-            onMapClick = onMapClick
-        ) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.surface
+
+    ) { padding ->
+        Box(modifier = Modifier
+            .padding(padding)
+            .fillMaxSize()) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
+                onMapClick = onMapClick
+            ) {
 
 
-            // Отображаем маркеры
-            markers.forEach { markerState ->
-                Marker(
-                    state = markerState,
-                    title = "New Marker"
-                )
-            }
-            if (markerLatLngList.size > 1) {
-                Polyline(
-                    points = markerLatLngList,
-                    color = Color.Blue,
-                    width = 5f
-                )
-            }
-        }
-        Column (modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween){
-            Text(
-                text = "$routeName: ${"%.2f".format(routeLength)} meters",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black,
-                modifier = Modifier.padding(16.dp)
-            )
-            Button(onClick = {
-                scope.launch {
-                    viewModel.saveDrawRoute(
-                        nameOfDrRoute = "$routeName", // Заглушка длины
-                        numbOfRecord = routeId
+                // Отображаем маркеры
+//                markers.forEach { markerState ->
+//                    Marker(
+//                        state = markerState,
+//                        title = "New Marker"
+//                    )
+//                }
+                lastMarker.value?.let { markerState ->
+                    Marker(
+                        state = markerState,
+                        title = "Last Marker"
                     )
-                    viewModel.clearRouteId() // Очищаем ID после сохранения
-                    navController.popBackStack()
                 }
-
-            }) {
+                if (markerLatLngList.size > 1) {
+                    Polyline(
+                        points = markerLatLngList,
+                        color = Color.Red,
+                        width = 5f
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "Save",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = routeLength,
+                    style = TextStyleLocal.semibold18,
                     color = Color.Black,
                     modifier = Modifier.padding(16.dp)
                 )
+                Button(
+                    modifier = Modifier.padding(16.dp),
+
+                    onClick = {
+                        scope.launch {
+                            viewModel.saveDrawRoute(
+                                nameOfDrRoute = "$routeName", // Заглушка длины
+                                numbOfRecord = routeId,
+                                lenght = routeLength.toString()
+                            )
+                            viewModel.clearRouteId() // Очищаем ID после сохранения
+                            navController.popBackStack()
+                        }
+
+                    },
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.save),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
+
+            // Отображаем длину маршрута
+
         }
-
-        // Отображаем длину маршрута
-
     }
     BackHandler {
         scope.launch {
@@ -174,14 +209,24 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController,route
     }
 }
 
-// Функция для вычисления длины маршрута
-fun calculateRouteLength(points: List<LatLng>): Double {
+
+fun calculateRouteLength(points: List<LatLng>, kmText: String, metersText: String): String {
     var totalDistance = 0.0
     for (i in 0 until points.size - 1) {
         totalDistance += calculateDistance(points[i], points[i + 1])
     }
-    return totalDistance
+
+    val distanceInMeters = totalDistance// * 1000  // Переводим километры в метры
+    val kilometers = distanceInMeters.toInt() / 1000
+    val meters = distanceInMeters.toInt() % 1000
+
+    return if (kilometers > 0) {
+        "$kilometers $kmText $meters $metersText"
+    } else {
+        "$meters $metersText"
+    }
 }
+
 
 // Функция для вычисления расстояния между двумя точками (формула Хаверсина)
 fun calculateDistance(start: LatLng, end: LatLng): Double {

@@ -73,15 +73,6 @@ object TextStyleLocal {
             letterSpacing = (0.0).sp,
             lineHeight = 16.0.sp.nonScaledSp
         )
-    val semibold16: TextStyle
-        @Composable
-        get() = TextStyle(
-            fontFamily = FontFamily(Font(R.font.robotomedium)),
-            fontSize = 16.0.sp.nonScaledSp,
-            letterSpacing = (0.0).sp,
-            lineHeight = 16.0.sp.nonScaledSp
-        )
-
     val semibold14: TextStyle
         @Composable
         get() = TextStyle(
@@ -91,6 +82,16 @@ object TextStyleLocal {
             lineHeight = 14.0.sp.nonScaledSp
         )
 
+    val semibold16: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotomedium)),
+            fontSize = 16.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 16.0.sp.nonScaledSp
+        )
+
+
     val semibold18: TextStyle
         @Composable
         get() = TextStyle(
@@ -98,6 +99,14 @@ object TextStyleLocal {
             fontSize = 18.0.sp.nonScaledSp,
             letterSpacing = (0.0).sp,
             lineHeight = 18.0.sp.nonScaledSp
+        )
+    val semibold20: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotomedium)),
+            fontSize = 20.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 20.0.sp.nonScaledSp
         )
     val semibold24: TextStyle
         @Composable
@@ -116,6 +125,38 @@ object TextStyleLocal {
             lineHeight = 30.0.sp.nonScaledSp
         )
 
+    val bold16: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotobold)),
+            fontSize = 16.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 16.0.sp.nonScaledSp
+        )
+    val bold18: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotobold)),
+            fontSize = 18.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 18.0.sp.nonScaledSp
+        )
+    val bold22: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotobold)),
+            fontSize = 22.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 22.0.sp.nonScaledSp
+        )
+    val bold24: TextStyle
+        @Composable
+        get() = TextStyle(
+            fontFamily = FontFamily(Font(R.font.robotobold)),
+            fontSize = 24.0.sp.nonScaledSp,
+            letterSpacing = (0.0).sp,
+            lineHeight = 24.0.sp.nonScaledSp
+        )
 
 
 //

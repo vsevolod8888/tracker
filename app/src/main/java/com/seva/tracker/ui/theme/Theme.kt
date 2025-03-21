@@ -18,6 +18,7 @@ private val DarkColorScheme = darkColorScheme(
     onTertiaryContainer = TertiaryRed,
     primaryContainer = Purple40Dark,
     onPrimaryContainer = White,
+    surfaceContainer = PurpleCalendarHaveRoutesDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -28,6 +29,7 @@ private val LightColorScheme = lightColorScheme(
     onTertiaryContainer = TertiaryRed,
     primaryContainer = Purple80Light,
     onPrimaryContainer = Black,
+    surfaceContainer = PurpleCalendarHaveRoutesLight
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
