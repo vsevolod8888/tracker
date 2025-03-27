@@ -215,7 +215,7 @@ fun NavigationGraph(
     if (requestBackgroundLocation) {
         BackGroundLocationPermissionHandler { isGranted ->
             backgroundPermission = isGranted
-            Log.d("vvv","isGranted $isGranted")
+            Log.d("vvv","isGranted BackGroundLocationPermissionHandler $isGranted")
 
             if (isGranted) {
                 requestBackgroundLocation = false
@@ -260,8 +260,6 @@ fun NavigationGraph(
         }
     }
 }
-
-
 fun startCounterService(context: Context) {
     val intent = Intent(context, CounterService::class.java)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

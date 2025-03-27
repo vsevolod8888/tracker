@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Трекер</string>
+    <string name="google_maps_key" translatable="false">${MAPS_API_KEY}</string>
+    <string name="routes">Маршрути</string>
+    <string name="settings">Налаштування</string>
+    <string name="mapdraw">Малювання на карті</string>
+    <string name="mapready">Карта готова</string>
+
+    <string name="tittledeleteallert">Видалення маршруту</string>
+    <string name="areyousurewanttodeleteroute">Ви впевнені, що хочете видалити маршрут:</string>
+    <string name="tittledeletalldialog">Видалити все</string>
+    <string name="areyousurewanttodeleteallroutes">Видалити всі маршрути?</string>
+    <string name="cancel">Скасувати</string>
+    <string name="delete">Видалити</string>
+    <string name="create">Створити</string>
+
+    <string name="createoute">Створити маршрут</string>
+    <string name="enteraroutenameandselectanaction">Введіть назву маршруту і виберіть дію</string>
+    <string name="enterroutename">Введіть назву маршруту</string>
+    <string name="newroute">Новий</string>
+    <string name="drawroute">Малювати</string>
+    <string name="sound">Звук</string>
+    <string name="addroute">Додати маршрут</string>
+    <string name="prevmonth">Попередній місяць</string>
+    <string name="nextmonth">Наступний місяць</string>
+    <string name="themelightdark">Тема: світла/темна</string>
+    <string name="deleteallroutes">Видалити всі маршрути</string>
+    <string name="notifications">Сповіщення</string>
+    <string name="showallroutes">Показати всі маршрути</string>
+    <string name="therearenoroutesonthisdate">На цю дату маршрутів немає</string>
+    <string name="therearenoroutesfortoday">Сьогодні маршрутів немає</string>
+    <string name="clickwindowtodeleteroute">Натисніть для видалення</string>
+    <string name="nointernetconnection">Немає підключення до інтернету</string>
+    <string name="km">км</string>
+    <string name="meters">м</string>
+    <string name="conti">Продовжити</string>
+    <string name="save">Зберегти</string>
+    <string name="coordinates">Координати</string>
+    <string name="ostanovit">Зупинити</string>
+
+    <string name="january">Січ</string>
+    <string name="february">Лют</string>
+    <string name="march">Бер</string>
+    <string name="april">Кві</string>
+    <string name="may">Трав</string>
+    <string name="june">Чер</string>
+    <string name="july">Лип</string>
+    <string name="august">Сер</string>
+    <string name="september">Вер</string>
+    <string name="october">Жовт</string>
+    <string name="november">Лист</string>
+    <string name="december">Груд</string>
+</resources>
