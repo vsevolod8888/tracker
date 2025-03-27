@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Трекер</string>
+    <string name="google_maps_key" translatable="false">${MAPS_API_KEY}</string>
+    <string name="routes">Маршруты</string>
+    <string name="settings">Настройки</string>
+    <string name="mapdraw">Рисование на карте</string>
+    <string name="mapready">Карта готова</string>
+
+    <string name="tittledeleteallert">Удаление маршрута</string>
+    <string name="areyousurewanttodeleteroute">Вы уверены, что хотите удалить маршрут:</string>
+    <string name="tittledeletalldialog">Удалить все</string>
+    <string name="areyousurewanttodeleteallroutes">Удалить все маршруты?</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="create">Создать</string>
+
+    <string name="createoute">Создать маршрут</string>
+    <string name="enteraroutenameandselectanaction">Введите название маршрута и выберите действие</string>
+    <string name="enterroutename">Введите название маршрута</string>
+    <string name="newroute">Новый</string>
+    <string name="drawroute">Нарисовать</string>
+    <string name="sound">Звук</string>
+    <string name="addroute">Добавить маршрут</string>
+    <string name="prevmonth">Предыдущий месяц</string>
+    <string name="nextmonth">Следующий месяц</string>
+    <string name="themelightdark">Тема: светлая/темная</string>
+    <string name="deleteallroutes">Удалить все маршруты</string>
+    <string name="notifications">Уведомления</string>
+    <string name="showallroutes">Показать все маршруты</string>
+    <string name="therearenoroutesonthisdate">На эту дату маршрутов нет</string>
+    <string name="therearenoroutesfortoday">Сегодня маршрутов нет</string>
+    <string name="clickwindowtodeleteroute">Нажмите для удаления</string>
+    <string name="nointernetconnection">Нет подключения к интернету</string>
+    <string name="km">км</string>
+    <string name="meters">м</string>
+    <string name="conti">Продолжить</string>
+    <string name="save">Сохранить</string>
+    <string name="coordinates">Координаты</string>
+    <string name="ostanovit">Остановить</string>
+
+    <string name="january">Янв</string>
+    <string name="february">Фев</string>
+    <string name="march">Мар</string>
+    <string name="april">Апр</string>
+    <string name="may">Май</string>
+    <string name="june">Июн</string>
+    <string name="july">Июл</string>
+    <string name="august">Авг</string>
+    <string name="september">Сен</string>
+    <string name="october">Окт</string>
+    <string name="november">Ноя</string>
+    <string name="december">Дек</string>
+</resources>
