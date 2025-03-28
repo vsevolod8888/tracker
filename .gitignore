@@ -12,6 +12,7 @@ hs_err_pid*
 gwt-unitCache/
 www-test/
 .gwt-tmp/
+.kotlin/errors
 
 ## Android Studio and Intellij and Android in general
 /android/libs/armeabi-v7a/

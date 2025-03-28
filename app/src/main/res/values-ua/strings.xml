@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Трекер</string>
-    <string name="google_maps_key" translatable="false">${MAPS_API_KEY}</string>
     <string name="routes">Маршрути</string>
+    <string name="waitingcoords">Чекаємо координати...</string>
     <string name="settings">Налаштування</string>
     <string name="mapdraw">Малювання на карті</string>
     <string name="mapready">Карта готова</string>

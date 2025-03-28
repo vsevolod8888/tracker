@@ -11,7 +11,7 @@ interface CoordDao {
     @Query("select * from route")
     fun getRoutes(): Flow<List<RouteEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) //перезаписывает если одинак. айдишка
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoute(r: RouteEntity)
 
     @Query("DELETE FROM route")
@@ -29,17 +29,14 @@ interface CoordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCoordList(coordlist: List<CoordinatesEntity>)
 
-
     @Query("SELECT * FROM route WHERE id =:routeId")
     suspend fun routeById(routeId: Long): RouteEntity?
 
     @Query("SELECT * FROM coord WHERE recordNumber =:routeId")
     fun coordtListLiveFlow(routeId: Int): Flow<List<CoordinatesEntity>>
 
-    @Insert//(onConflict = OnConflictStrategy.)
+    @Insert
     suspend fun insertCoord(c: CoordinatesEntity)
-
-
 
     @Query("SELECT * FROM coord ORDER BY id DESC LIMIT 1")
     suspend fun lastCoord(): CoordinatesEntity?
@@ -52,8 +49,6 @@ interface CoordDao {
 
     @Query("SELECT * FROM coord WHERE recordNumber=:recordNumberId ORDER BY checktime ")
     fun getListByUnicalRecordNumber(recordNumberId: Long?): Flow<List<CoordinatesEntity>>
-
-
 
     @Query("SELECT DISTINCT recordNumber FROM coord ORDER BY recordNumber ")
     fun getOnlyRecordNumbersList(): Flow<List<Int?>>

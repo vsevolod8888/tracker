@@ -43,9 +43,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.seva.tracker.R
 import com.seva.tracker.data.room.RouteEntity
-import com.seva.tracker.io.wojciechosak.calendar.view.WeekView
-import com.seva.tracker.io.wojciechosak.calendar.view.isDateInRange
-import com.seva.tracker.io.wojciechosak.calendar.view.today
+import com.seva.tracker.presentation.calendar.WeekView
+import com.seva.tracker.presentation.calendar.isDateInRange
+import com.seva.tracker.presentation.calendar.today
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.dialogs.DeleteRouteDialog
 import kotlinx.coroutines.Dispatchers
@@ -146,7 +146,6 @@ fun RoutesScreen(viewModel: MyViewModel, navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-
 
                 LazyColumn(
                     modifier = Modifier.padding(top = 0.dp),
@@ -262,7 +261,6 @@ fun RoutesScreen(viewModel: MyViewModel, navController: NavHostController) {
         } else {
             NoInternetPicture(padding)
         }
-
 
         if (showDialog && deletedMatch != null) {
             DeleteRouteDialog(

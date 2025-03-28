@@ -12,13 +12,3 @@ val Purple80Light = Color(0xFFD0BCFF)
 val PurpleCalendarHaveRoutesLight = Color(0xFFEBE3FF)
 val Purple40Dark = Color(0xFF6650a4)
 val PurpleCalendarHaveRoutesDark = Color(0xFF2E2346)
-
-
-
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-
-
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)

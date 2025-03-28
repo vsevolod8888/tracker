@@ -25,12 +25,13 @@ fun ButtonOnSettingsScreen(
     ) {
         Text(
             text = text,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(start = 20.dp)
                 .weight(6f),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             style = TextStyleLocal.semibold16,
         )
-
-}}
+    }
+}

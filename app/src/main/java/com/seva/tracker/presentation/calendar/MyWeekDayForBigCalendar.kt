@@ -1,4 +1,4 @@
-package com.seva.tracker.io.wojciechosak.calendar.view
+package com.seva.tracker.presentation.calendar
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize

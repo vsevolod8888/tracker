@@ -29,8 +29,8 @@ fun ButtonSwitchTheme(
     viewModel: MyViewModel,
     modifier: Modifier
 ) {
-    var switcThemeState = viewModel.isThemeDark.collectAsState()
-    var scope = rememberCoroutineScope()
+    val switcThemeState = viewModel.isThemeDark.collectAsState()
+    val scope = rememberCoroutineScope()
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -38,7 +38,8 @@ fun ButtonSwitchTheme(
 
         Text(
             text = text,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(start = 20.dp)
                 .weight(6f),
@@ -59,7 +60,7 @@ fun ButtonSwitchTheme(
                     .wrapContentWidth()
                     .weight(1f),
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primaryContainer,//
+                    checkedThumbColor = MaterialTheme.colorScheme.primaryContainer,
                     uncheckedThumbColor = MaterialTheme.colorScheme.primaryContainer,
                     checkedBorderColor = MaterialTheme.colorScheme.primaryContainer,
                     uncheckedBorderColor = MaterialTheme.colorScheme.primaryContainer,

@@ -42,8 +42,8 @@ import androidx.compose.ui.res.stringResource
 import com.seva.tracker.R
 import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.data.room.RouteEntity
-import com.seva.tracker.io.wojciechosak.calendar.view.MyCalendarBig
-import com.seva.tracker.io.wojciechosak.calendar.view.today
+import com.seva.tracker.presentation.calendar.MyCalendarBig
+import com.seva.tracker.presentation.calendar.today
 import com.seva.tracker.presentation.common.NoInternetPicture
 import com.seva.tracker.presentation.common.NoRoutesText
 import com.seva.tracker.presentation.dialogs.DeleteRouteDialog
@@ -127,7 +127,6 @@ fun RoutesBigScreen(viewModel: MyViewModel, navController: NavHostController) {
 
                             })
                         }
-
                     }
                     if (filteredRoutes.isNotEmpty()) {
                         items(

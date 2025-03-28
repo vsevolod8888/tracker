@@ -18,18 +18,23 @@ class MyConnectivityManager(context: Context, private val externalScope: Corouti
         get() = _connectionFlow
             .stateIn(
                 scope = externalScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
                 initialValue = isConnected
             )
 
     private val _connectionFlow = callbackFlow {
-        val networkCallback = object : ConnectivityManager.NetworkCallback(){
-            override fun onLost(network : Network) {
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onLost(network: Network) {
                 trySend(false)
             }
-            override fun onCapabilitiesChanged(network : Network, networkCapabilities : NetworkCapabilities) {
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
                 if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                ) {
                     trySend(true)
                 }
             }
@@ -40,7 +45,7 @@ class MyConnectivityManager(context: Context, private val externalScope: Corouti
         }
     }
 
-     val isConnected: Boolean
+    val isConnected: Boolean
         get() {
             val activeNetwork = connectivityManager.activeNetwork
             return if (activeNetwork == null) {
@@ -59,5 +64,8 @@ class MyConnectivityManager(context: Context, private val externalScope: Corouti
 
     private fun unsubscribe(networkCallback: ConnectivityManager.NetworkCallback) {
         connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+    companion object{
+        const val STOP_TIMEOUT_MILLIS = 5000L
     }
 }

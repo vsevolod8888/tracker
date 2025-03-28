@@ -58,26 +58,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun MapNewRouteScreen(
     viewModel: MyViewModel,
-    navController: NavHostController,
-    routeName: String?
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var routeLength by remember { mutableStateOf("") }
     var scope = rememberCoroutineScope()
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        locationPermissionGranted = isGranted
-    }
-
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val coroutineScope = rememberCoroutineScope()
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
+        position = CameraPosition.fromLatLngZoom(POSITION_KYIV, 10f)
     }
-    // val markers = remember { mutableStateListOf<MarkerState>() }
     val lastMarker = remember { mutableStateOf<MarkerState?>(null) }
 
     var markerLatLngList by remember { mutableStateOf(emptyList<LatLng>()) }
@@ -87,7 +76,6 @@ fun MapNewRouteScreen(
     val routeId by viewModel.routeId.collectAsState()
 
     LaunchedEffect(routeId) {
-        Log.d("zzz", "LaunchedEffect MapNewRouteScreen routeId $routeId")
         if (routeId == 0L) {
             viewModel.updateRouteId(System.currentTimeMillis())
         }
@@ -95,8 +83,7 @@ fun MapNewRouteScreen(
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
 
     LaunchedEffect(coordinates) {
-        //      markers.clear()
-        markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
+        markerLatLngList = coordinates.map { LatLng(it.lattitude, it.longittude) }
 
         if (markerLatLngList.isNotEmpty()) {
             val markerState = MarkerState(position = markerLatLngList.first())
@@ -109,14 +96,12 @@ fun MapNewRouteScreen(
         }
     }
 
-
     LocationPermissionHandler(
         onPermissionResult = { isGranted -> locationPermissionGranted = isGranted },
         onLocationReceived = { latLng ->
             cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
         }
     )
-
     DisposableEffect(Unit) {
         val stopReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -149,13 +134,6 @@ fun MapNewRouteScreen(
                 properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
                 onMapClick = {}
             ) {
-
-//                markers.forEach { markerState ->
-//                    Marker(
-//                        state = markerState,
-//                        title = "New Marker"
-//                    )
-//                }
                 lastMarker.value?.let { markerState ->
                     Marker(
                         state = markerState,
@@ -221,6 +199,8 @@ fun stopService(context: Context) {
     val intent = Intent(context, CounterService::class.java)
     context.stopService(intent)
 }
+
+val POSITION_KYIV =LatLng(50.4501, 30.5234)
 
 
 
