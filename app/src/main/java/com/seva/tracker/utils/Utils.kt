@@ -42,16 +42,20 @@ fun formatEpochDays(epochDays: Int): String {
 fun shortenString(input: String): String {
     return if (input.length > 7) input.take(7) + "…" else input
 }
+
 fun makeToastNoInternet(context: Context) {
     Toast.makeText(context, R.string.nointernetconnection, Toast.LENGTH_LONG).show()
-
 }
 
 @Composable
 fun getBitmapDescriptor(@DrawableRes vectorResId: Int): BitmapDescriptor? {
     val context = LocalContext.current
     val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
-    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(
+        drawable.intrinsicWidth,
+        drawable.intrinsicHeight,
+        Bitmap.Config.ARGB_8888
+    )
     val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
     drawable.draw(canvas)

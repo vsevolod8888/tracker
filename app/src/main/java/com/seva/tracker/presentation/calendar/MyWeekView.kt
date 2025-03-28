@@ -1,9 +1,8 @@
-package com.seva.tracker.io.wojciechosak.calendar.view
+package com.seva.tracker.presentation.calendar
 
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,8 +53,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
-import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.INITIAL_PAGE_INDEX
-import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.MAX_PAGES
+import com.seva.tracker.presentation.calendar.CalendarConstants.INITIAL_PAGE_INDEX
+import com.seva.tracker.presentation.calendar.CalendarConstants.MAX_PAGES
 import kotlinx.datetime.DayOfWeek
 
 
@@ -74,14 +73,14 @@ import kotlinx.datetime.DayOfWeek
  * @param day The composable function to display each day item in the week view.
  */
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WeekView(
     startDate: LocalDate =
         Clock.System.now()
             .toLocalDateTime(TimeZone.currentSystemDefault())
             .toLocalDate(),
-    @SuppressLint("NewApi") minDate: LocalDate = startDate.copy(day = 1).minus(3, DateTimeUnit.MONTH),
+    @SuppressLint("NewApi") minDate: LocalDate = startDate.copy(day = 1)
+        .minus(3, DateTimeUnit.MONTH),
     @SuppressLint("NewApi") maxDate: LocalDate =
         startDate.copy(day = monthLength(startDate.month, startDate.year))
             .plus(3, DateTimeUnit.MONTH),
@@ -139,7 +138,6 @@ fun WeekView(
         }
     }
 }
-
 
 
 @Composable
@@ -210,8 +208,6 @@ fun MonthYear.monthOffset(monthOffset: Int) = this
     .toMonthYear()
 
 
-
-
 @Composable
 fun CalendarDay(
     state: DayState,
@@ -233,7 +229,7 @@ fun CalendarDay(
             if (isForPreviousMonth || isForNextMonth) {
                 Color.LightGray
             } else {
-                if (isActiveDay)  Color.Green else Color.Blue
+                if (isActiveDay) Color.Green else Color.Blue
             },
         ),
     ) {
@@ -412,7 +408,9 @@ fun MonthHeader(
         )
     Text(
         "${months.getOrNull(month.ordinal)} $year",
-        modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp, top = 0.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 20.dp, top = 0.dp),
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.ExtraLight,
         fontSize = 16.sp,
@@ -439,7 +437,6 @@ sealed class SelectionMode {
      */
     data object Range : SelectionMode()
 }
-
 
 
 interface RangeIllustrator {
@@ -576,19 +573,21 @@ private fun Item(
     } else {
         val selectedDates = config.value.selectedDates
         Box(
-            modifier = Modifier.passTouchGesture {
-                val selectionList = selectDate(
+            modifier = Modifier
+                .passTouchGesture {
+                    val selectionList = selectDate(
+                        date = newDate,
+                        mode = selectionMode,
+                        list = config.value.selectedDates,
+                    )
+                    config.value = config.value.copy(selectedDates = selectionList)
+                    onDateSelected(selectionList)
+                }
+                .drawRange(
+                    selectedDates = selectedDates,
                     date = newDate,
-                    mode = selectionMode,
-                    list = config.value.selectedDates,
-                )
-                config.value = config.value.copy(selectedDates = selectionList)
-                onDateSelected(selectionList)
-            }.drawRange(
-                selectedDates = selectedDates,
-                date = newDate,
-                config = rangeConfig,
-            ),
+                    config = rangeConfig,
+                ),
         ) {
             day(
                 DayState(

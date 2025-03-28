@@ -40,28 +40,22 @@ import com.seva.tracker.R
 import com.seva.tracker.TextStyleLocal
 import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
+import com.seva.tracker.presentation.mapNewRoute.POSITION_KYIV
 
 import kotlinx.coroutines.launch
 
 @Composable
 fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, routeName: String?) {
-    val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var routeLength by remember { mutableStateOf("") }
     var scope = rememberCoroutineScope()
     val lastMarker = remember { mutableStateOf<MarkerState?>(null) }
 
-
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val coroutineScope = rememberCoroutineScope()
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
+        position = CameraPosition.fromLatLngZoom(POSITION_KYIV, 10f)
     }
-    // val markers = remember { mutableStateListOf<MarkerState>() }
 
     var markerLatLngList by remember { mutableStateOf(emptyList<LatLng>()) }
-
 
     val routeId by viewModel.routeId.collectAsState()
 
@@ -69,18 +63,14 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
         if (routeId == 0L) {
             viewModel.updateRouteId(System.currentTimeMillis())
         }
-        //    Log.d("zzz"," name : ${routeName})")
     }
     val kmText = stringResource(R.string.km)
     val metersText = stringResource(R.string.meters)
 
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
     LaunchedEffect(coordinates) {
-
-        //  markers.clear()
-        markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
+        markerLatLngList = coordinates.map { LatLng(it.lattitude, it.longittude) }
         routeLength = calculateRouteLength(markerLatLngList, kmText, metersText)
-        //   markers.addAll(markerLatLngList.map { MarkerState(position = it) })
 
         if (markerLatLngList.isNotEmpty()) {
             cameraPositionState.animate(
@@ -93,14 +83,12 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
     LocationPermissionHandler(
         onPermissionResult = { isGranted -> locationPermissionGranted = isGranted },
         onLocationReceived = { latLng ->
-            Log.d("zzz", " location : ${latLng.latitude}, ${latLng.longitude},${routeName})")
             cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
         }
     )
 
     val onMapClick: (LatLng) -> Unit = { latLng ->
         val markerState = MarkerState(position = latLng)
-        //   markers.add(markerState)
         lastMarker.value = MarkerState(position = markerState.position)
 
         scope.launch {
@@ -112,36 +100,24 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
             )
         }
 
-        // Добавляем новую точку в список сразу
         markerLatLngList = markerLatLngList + latLng
-
-        // Пересчитываем длину маршрута
-        // routeLength = calculateRouteLength(markerLatLngList)
-
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surface
 
     ) { padding ->
-        Box(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
                 onMapClick = onMapClick
             ) {
-
-
-                // Отображаем маркеры
-//                markers.forEach { markerState ->
-//                    Marker(
-//                        state = markerState,
-//                        title = "New Marker"
-//                    )
-//                }
                 lastMarker.value?.let { markerState ->
                     Marker(
                         state = markerState,
@@ -172,14 +148,13 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
                     onClick = {
                         scope.launch {
                             viewModel.saveDrawRoute(
-                                nameOfDrRoute = "$routeName", // Заглушка длины
+                                nameOfDrRoute = "$routeName",
                                 numbOfRecord = routeId,
-                                lenght = routeLength.toString()
+                                lenght = routeLength
                             )
-                            viewModel.clearRouteId() // Очищаем ID после сохранения
+                            viewModel.clearRouteId()
                             navController.popBackStack()
                         }
-
                     },
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
@@ -196,9 +171,6 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
                     )
                 }
             }
-
-            // Отображаем длину маршрута
-
         }
     }
     BackHandler {
@@ -209,14 +181,13 @@ fun MapDrawScreen(viewModel: MyViewModel, navController: NavHostController, rout
     }
 }
 
-
 fun calculateRouteLength(points: List<LatLng>, kmText: String, metersText: String): String {
     var totalDistance = 0.0
     for (i in 0 until points.size - 1) {
         totalDistance += calculateDistance(points[i], points[i + 1])
     }
 
-    val distanceInMeters = totalDistance// * 1000  // Переводим километры в метры
+    val distanceInMeters = totalDistance
     val kilometers = distanceInMeters.toInt() / 1000
     val meters = distanceInMeters.toInt() % 1000
 
@@ -227,10 +198,8 @@ fun calculateRouteLength(points: List<LatLng>, kmText: String, metersText: Strin
     }
 }
 
-
-// Функция для вычисления расстояния между двумя точками (формула Хаверсина)
 fun calculateDistance(start: LatLng, end: LatLng): Double {
-    val R = 6371e3 // Радиус Земли в метрах
+    val R = 6371e3
     val lat1 = Math.toRadians(start.latitude)
     val lat2 = Math.toRadians(end.latitude)
     val deltaLat = Math.toRadians(end.latitude - start.latitude)
@@ -241,7 +210,7 @@ fun calculateDistance(start: LatLng, end: LatLng): Double {
             Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2)
     val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
-    return R * c // Возвращает расстояние в метрах
+    return R * c
 }
 
 

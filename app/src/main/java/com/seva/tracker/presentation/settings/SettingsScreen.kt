@@ -1,5 +1,9 @@
 package com.seva.tracker.presentation.settings
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.seva.tracker.R
 import com.seva.tracker.TextStyleLocal
@@ -52,14 +55,13 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.settings),style = TextStyleLocal.semibold20)
+                    Text(stringResource(R.string.settings), style = TextStyleLocal.semibold20)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -68,12 +70,10 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                 )
             )
-
         },
         containerColor = MaterialTheme.colorScheme.primary
 
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -85,16 +85,28 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
             ButtonSwitchTheme(
                 stringResource(R.string.themelightdark),
                 viewModel,
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(52.dp).border(
-                    1.dp, MaterialTheme.colorScheme.onPrimaryContainer, RoundedCornerShape(50.dp)
-                )
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .height(52.dp)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        RoundedCornerShape(50.dp)
+                    )
             )
 
             ButtonOnSettingsScreen(
-                stringResource(R.string.deleteallroutes),//stringResource(R.string.sound)
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(52.dp).border(
-                    1.dp, MaterialTheme.colorScheme.onPrimaryContainer, RoundedCornerShape(50.dp)
-                ),
+                stringResource(R.string.deleteallroutes),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .height(52.dp)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        RoundedCornerShape(50.dp)
+                    ),
                 onClick = {
                     showDialog = true
                 }
@@ -102,32 +114,39 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
 
             ButtonOnSettingsScreen(
                 stringResource(R.string.notifications),
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(52.dp).border(
-                    1.dp, MaterialTheme.colorScheme.onPrimaryContainer, RoundedCornerShape(50.dp)
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .height(52.dp)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        RoundedCornerShape(50.dp)
+                    ),
                 onClick = {
-                    viewModel.goToSettings(context)
+                    goToSettings(context)
                 }
             )
 
             ButtonOnSettingsScreen(
                 stringResource(R.string.showallroutes),
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(52.dp).border(
-                    1.dp, MaterialTheme.colorScheme.onPrimaryContainer, RoundedCornerShape(50.dp)
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .height(52.dp)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        RoundedCornerShape(50.dp)
+                    ),
                 onClick = {
-                    if (isNetworkAvailable.value){
+                    if (isNetworkAvailable.value) {
                         navController.navigate(NavigationItem.MapAll.route) {
-//                        popUpTo(navController.graph.findStartDestination().id) {
-//                            saveState = false //
-//                        }
                             launchSingleTop = true
-                            //   restoreState = true
                         }
-                    }else{
+                    } else {
                         makeToastNoInternet(context)
                     }
-
                 }
             )
 
@@ -146,7 +165,6 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
                 confirmText = stringResource(R.string.delete),
                 dismissText = stringResource(R.string.cancel),
                 onConfirm = {
-
                     coroutineScope.launch(Dispatchers.IO) {
                         viewModel.deleteAllRoutesAndCoords()
                     }
@@ -158,4 +176,12 @@ fun SettingsScreen(viewModel: MyViewModel, navController: NavHostController) {
             )
         }
     }
+}
+
+fun goToSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        data = Uri.parse("package:${context.packageName}")
+    }
+    context.startActivity(intent)
 }

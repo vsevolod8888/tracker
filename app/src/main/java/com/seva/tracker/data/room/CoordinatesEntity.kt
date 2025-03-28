@@ -5,15 +5,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "coord")
-data class CoordinatesEntity(                        //WeatherDatabase
+data class CoordinatesEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(name = "checktime")
-    var checkTime: Long,
+    val checkTime: Long,
     @ColumnInfo(name = "recordNumber")
-    var recordNumber: Long,                        // было Int
+    val recordNumber: Long,
     @ColumnInfo(name = "lattitude")
-    var Lattitude: Double,
+    val lattitude: Double,
     @ColumnInfo(name = "longittude")
-    var Longittude: Double
+    val longittude: Double
 )

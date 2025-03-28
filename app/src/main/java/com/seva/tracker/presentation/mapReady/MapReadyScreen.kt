@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -44,6 +43,7 @@ import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.bottomnavigation.NavigationItem
 import com.seva.tracker.presentation.mapDraw.calculateRouteLength
+import com.seva.tracker.presentation.mapNewRoute.POSITION_KYIV
 import com.seva.tracker.startCounterService
 import kotlinx.coroutines.launch
 
@@ -59,13 +59,8 @@ fun MapReadyScreen(
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var routeLength by remember { mutableStateOf("") }
     var scope = rememberCoroutineScope()
-
-
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val coroutineScope = rememberCoroutineScope()
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
+        position = CameraPosition.fromLatLngZoom(POSITION_KYIV, 10f)
     }
     val markers = remember { mutableStateListOf<MarkerState>() }
     var markerLatLngList by remember { mutableStateOf<List<LatLng>>(emptyList()) }
@@ -75,20 +70,10 @@ fun MapReadyScreen(
     val coordinates by viewModel.coordtListLiveFlow(routeId).collectAsState(initial = emptyList())
 
     LaunchedEffect(coordinates) {
-        coordinates.forEachIndexed { index, coordinatesEntity ->
-
-            Log.d(
-                "zzz",
-                " coordinates.size : ${index} ${coordinatesEntity.Lattitude} ${coordinatesEntity.Longittude})"
-            )
-        }
-
         markers.clear()
-        markerLatLngList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
+        markerLatLngList = coordinates.map { LatLng(it.lattitude, it.longittude) }
         routeLength = calculateRouteLength(markerLatLngList, kmText, metersText)
         markers.addAll(markerLatLngList.map { MarkerState(position = it) })
-
-        // Центрируем камеру на первую точку маршрута
         if (markerLatLngList.isNotEmpty()) {
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLngZoom(markerLatLngList.last(), 15f),
@@ -117,9 +102,11 @@ fun MapReadyScreen(
 
     ) { padding ->
 
-        Box(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -174,7 +161,7 @@ fun MapReadyScreen(
                         }
                     },
                     colors = ButtonColors(
-                        containerColor =  MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         disabledContentColor = MaterialTheme.colorScheme.surface,
                         disabledContainerColor = MaterialTheme.colorScheme.onSurface,

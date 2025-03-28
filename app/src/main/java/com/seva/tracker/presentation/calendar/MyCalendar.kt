@@ -1,11 +1,7 @@
-package com.seva.tracker.io.wojciechosak.calendar.view
+package com.seva.tracker.presentation.calendar
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -23,19 +19,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seva.tracker.data.room.RouteEntity
-import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.INITIAL_PAGE_INDEX
-import com.seva.tracker.io.wojciechosak.calendar.view.CalendarConstants.MAX_PAGES
+import com.seva.tracker.presentation.calendar.CalendarConstants.INITIAL_PAGE_INDEX
+import com.seva.tracker.presentation.calendar.CalendarConstants.MAX_PAGES
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.daysUntil
-import kotlinx.datetime.periodUntil
 import kotlinx.datetime.plus
 import java.util.Locale
-import kotlin.math.floor
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -82,7 +75,7 @@ fun MyCalendarBig(
                             }
                         },
                         onClickNext = {
-                            if (!isScrolling){
+                            if (!isScrolling) {
                                 isScrolling = true
                                 scope.launch {
                                     try {
@@ -124,8 +117,7 @@ fun MyCalendarBig(
                 dayOfWeekLabel = {
                     MyWeekDayForBigCalendar(it.name.first().toString().toUpperCase(Locale.ROOT))
                 },
-
-            )
+                )
         })
 }
 
@@ -133,6 +125,7 @@ object CalendarConstants {
     internal const val MAX_PAGES = 100000
     internal const val INITIAL_PAGE_INDEX = MAX_PAGES / 2
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HorizontalCalendarView(

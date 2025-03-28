@@ -32,7 +32,10 @@ fun LocationPermissionHandler(
     }
 
     LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+        if (ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) ==
             PackageManager.PERMISSION_GRANTED
         ) {
             onPermissionResult(true)

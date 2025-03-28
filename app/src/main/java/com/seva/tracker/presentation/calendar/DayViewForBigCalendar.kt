@@ -1,4 +1,4 @@
-package com.seva.tracker.io.wojciechosak.calendar.view
+package com.seva.tracker.presentation.calendar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seva.tracker.TextStyleLocal
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
@@ -47,22 +46,11 @@ fun DayViewForBigCalendar(
             Text(
                 text = "${date.dayOfMonth}",
                 color = if (date == today && isCurrentMonth) MaterialTheme.colorScheme.onPrimaryContainer
-                //   else if (!isCurrentMonth) TextSecondary
                 else if (date.month == selectedMonth && date.year == selectedYear) MaterialTheme.colorScheme.onPrimaryContainer
                 else MaterialTheme.colorScheme.onPrimaryContainer,
                 style = if (date == today && isCurrentMonth) TextStyleLocal.bold24 else TextStyleLocal.semibold16,
                 textAlign = TextAlign.Center
             )
         }
-//        if (isDotVisible) {
-//            Canvas(
-//                modifier =
-//                Modifier
-//                    .padding(bottom = 7.dp)
-//                    .size(4.dp)
-//                    .align(Alignment.BottomCenter),
-//                onDraw = { drawCircle(color = Color.White) },
-//            )
-//        }
     }
 }

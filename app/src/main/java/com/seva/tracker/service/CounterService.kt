@@ -4,11 +4,8 @@ import android.Manifest
 import android.app.*
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.*
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -26,7 +23,6 @@ import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.presentation.mapDraw.calculateRouteLength
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -34,6 +30,7 @@ import javax.inject.Inject
 class CounterService : Service() {
     @Inject
     lateinit var settingsData: SettingsDataStore
+
     @Inject
     lateinit var repository: Repository
 
@@ -43,13 +40,13 @@ class CounterService : Service() {
     }
 
     private var lastSavedTime = 0L
-    private var minTimeMillis = 10 * 60 * 1000
+    private var minTimeMillis = 10 * 60 * SECOND.toInt()
 
     private var locationRequest = createLocationRequest(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
 
-    var coordinatesList = mutableListOf<LatLng>()
-    var routeLength = ""
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var coordinatesList = mutableListOf<LatLng>()
+    private var routeLength = ""
+    private var serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -63,18 +60,24 @@ class CounterService : Service() {
             }
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            val routeId = settingsData.routeId.first() // Вызываем first() внутри launch
+            val routeId = settingsData.routeId.first()
             repository.coordtListLiveFlow(routeId).collect { coordinates ->
-                coordinatesList = coordinates.map { LatLng(it.Lattitude, it.Longittude) }.toMutableList()
-                routeLength = calculateRouteLength(coordinatesList, resources.getString(R.string.km), resources.getString(R.string.meters))
+                coordinatesList =
+                    coordinates.map { LatLng(it.lattitude, it.longittude) }.toMutableList()
+                routeLength = calculateRouteLength(
+                    coordinatesList,
+                    resources.getString(R.string.km),
+                    resources.getString(R.string.meters)
+                )
             }
         }
         createNotificationChannel()
-        val notification = createNotification("Ожидание координат...")
+        val notification = createNotification(resources.getString(R.string.waitingcoords))
         startForeground(1, notification)
         startLocationUpdates()
     }
@@ -89,50 +92,58 @@ class CounterService : Service() {
         ) {
             return
         }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     private fun adjustLocationRequest(speed: Float) {
         val newPriority = when {
             speed > 5 -> Priority.PRIORITY_HIGH_ACCURACY
             speed > 0.5 -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
-            else -> Priority.PRIORITY_LOW_POWER // Статика (дом, работа)
+            else -> Priority.PRIORITY_LOW_POWER
         }
 
         if (locationRequest.priority != newPriority) {
             locationRequest = createLocationRequest(newPriority)
             minTimeMillis = when (newPriority) {
-                Priority.PRIORITY_HIGH_ACCURACY -> 20 * 1000  // 20 секунд
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY -> 60 * 1000  // 1 минута
-                else -> 10 * 60 * 1000  // 10 минут
+                Priority.PRIORITY_HIGH_ACCURACY -> 20 * SECOND.toInt()
+                Priority.PRIORITY_BALANCED_POWER_ACCURACY -> 60 * SECOND.toInt()
+                else -> 10 * 60 * SECOND.toInt()
             }
             startLocationUpdates()
         }
     }
 
     private fun createLocationRequest(priority: Int): LocationRequest {
-        return LocationRequest.Builder(priority, 5000)
-            .setMinUpdateIntervalMillis(2000)
+        return LocationRequest.Builder(priority, LOCATION_REQUEST_INTERVAL)
+            .setMinUpdateIntervalMillis(MIN_REQUEST_INTERVAL)
             .setMinUpdateDistanceMeters(10f)
             .build()
     }
 
     private fun saveLocation(lat: Double, lon: Double) {
         val newCoord = LatLng(lat, lon)
-        coordinatesList.add(newCoord) // Добавляем координаты в список
+        coordinatesList.add(newCoord)
 
 
         updateNotification("$lat $lon")
         serviceScope.launch {
-            routeLength = calculateRouteLength(coordinatesList, resources.getString(R.string.km), resources.getString(R.string.meters))
+            routeLength = calculateRouteLength(
+                coordinatesList,
+                resources.getString(R.string.km),
+                resources.getString(R.string.meters)
+            )
 
             val routeId = settingsData.routeId.first()
             val newCoord = CoordinatesEntity(
                 id = 0,
                 checkTime = System.currentTimeMillis(),
                 recordNumber = routeId,
-                Lattitude = lat,
-                Longittude = lon
+                lattitude = lat,
+                longittude = lon
             )
             repository.insertCoord(newCoord)
         }
@@ -150,7 +161,11 @@ class CounterService : Service() {
             .setContentTitle(resources.getString(R.string.coordinates))
             .setContentText(countString)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .addAction(android.R.drawable.ic_delete, resources.getString(R.string.ostanovit), stopPendingIntent)
+            .addAction(
+                android.R.drawable.ic_delete,
+                resources.getString(R.string.ostanovit),
+                stopPendingIntent
+            )
             .setOngoing(true)
             .build()
     }
@@ -164,10 +179,10 @@ class CounterService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             channelId,
-            "Счётчик",
+            "Counter",
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Канал для фонового счётчика"
+            description = "Background counter channel"
         }
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
@@ -176,7 +191,7 @@ class CounterService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == "STOP_SERVICE") {
             val stopIntent = Intent("STOP_SERVICE_ACTION")
-            sendBroadcast(stopIntent) // Уведомляем UI
+            sendBroadcast(stopIntent)
             stopSelf()
         }
         return START_STICKY
@@ -184,15 +199,16 @@ class CounterService : Service() {
 
     override fun onDestroy() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
-
-        // Запуск корутины в сервисном scope
         val job = serviceScope.launch {
-            routeLength = calculateRouteLength(coordinatesList, resources.getString(R.string.km), resources.getString(R.string.meters))
+            routeLength = calculateRouteLength(
+                coordinatesList,
+                resources.getString(R.string.km),
+                resources.getString(R.string.meters)
+            )
             val routeName = settingsData.routenameDataStore.first()
             val routeId = settingsData.routeId.first()
-            delay(1000)
-            val epochDays = routeId / 86400000
-            Log.d("zzz", "routeLength $routeLength")
+            delay(SECOND)
+            val epochDays = routeId / MILLISECONDS_IN_DAY
             val newRoute = RouteEntity(
                 id = routeId,
                 lenght = routeLength,
@@ -205,15 +221,18 @@ class CounterService : Service() {
             repository.insertRoute(newRoute)
             settingsData.saveRouteId(0L)
         }
-
-        // Ожидаем завершение корутины перед вызовом super.onDestroy()
         runBlocking { job.join() }
-
-        // Отменяем serviceScope после завершения работы
         serviceScope.cancel()
 
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        const val SECOND = 1000L
+        const val LOCATION_REQUEST_INTERVAL = 5000L
+        const val MIN_REQUEST_INTERVAL = 5000L
+        const val MILLISECONDS_IN_DAY = 86400000
+    }
 }

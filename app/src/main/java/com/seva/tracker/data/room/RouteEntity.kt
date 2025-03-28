@@ -6,17 +6,16 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "route")
 data class RouteEntity(
-    @PrimaryKey//(autoGenerate = true)
-    var id: Long,//= System.currentTimeMillis()
-
+    @PrimaryKey
+    var id: Long,
     val epochDays: Int = 0,
-    var isDrawing: Boolean,
+    val isDrawing: Boolean,
     @ColumnInfo(name = "lenght")
-    var lenght: String = "",
+    val lenght: String = "",
     @ColumnInfo(name = "checktime")
-    var checkTime: Long,//= System.currentTimeMillis()
+    val checkTime: Long,
     @ColumnInfo(name = "recordRouteName")
-    var recordRouteName: String,
+    val recordRouteName: String,
     @ColumnInfo(name = "isClicked")
-    var isClicked: Boolean
+    val isClicked: Boolean
 )

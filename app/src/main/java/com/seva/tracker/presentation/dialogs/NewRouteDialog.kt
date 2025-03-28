@@ -81,8 +81,8 @@ fun NewRouteDialog(
                         disabledSuffixColor = MaterialTheme.colorScheme.onSurface,
                         errorSuffixColor = MaterialTheme.colorScheme.onSurface,
                         textSelectionColors = TextSelectionColors(
-                            handleColor= MaterialTheme.colorScheme.onSurface,
-                            backgroundColor= MaterialTheme.colorScheme.onSurface,
+                            handleColor = MaterialTheme.colorScheme.onSurface,
+                            backgroundColor = MaterialTheme.colorScheme.onSurface,
                         ),
                     )
                 )

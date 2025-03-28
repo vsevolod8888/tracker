@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seva.tracker.TextStyleLocal
-import com.seva.tracker.io.wojciechosak.calendar.view.DayState
+import com.seva.tracker.presentation.calendar.DayState
 import kotlinx.datetime.LocalDate
-import com.seva.tracker.io.wojciechosak.calendar.view.today
+import com.seva.tracker.presentation.calendar.today
 
 @Composable
 fun CalendarDaySmall(
@@ -32,7 +32,10 @@ fun CalendarDaySmall(
     OutlinedButton(
         onClick = onClick,
         modifier = modifier,
-        border =  BorderStroke(if (isDotVisible) 1.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer),
+        border = BorderStroke(
+            if (isDotVisible) 1.dp else 1.dp,
+            if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+        ),
         contentPadding = PaddingValues(0.dp),
         interactionSource = interactionSource,
         enabled = enabled,
@@ -48,7 +51,7 @@ fun CalendarDaySmall(
             Text(
                 if (date == today) "Today ${date.dayOfMonth}" else date.dayOfMonth.toString(),
                 color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
-                  style = if (date == today) TextStyleLocal.semibold16 else TextStyleLocal.semibold16,
+                style = if (date == today) TextStyleLocal.semibold16 else TextStyleLocal.semibold16,
                 textAlign = TextAlign.Center
             )
         }

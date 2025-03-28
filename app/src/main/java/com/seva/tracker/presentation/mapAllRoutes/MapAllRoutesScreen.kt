@@ -11,28 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -46,7 +37,7 @@ import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.presentation.MyViewModel
 import com.seva.tracker.presentation.dialogs.DeleteRouteDialog
-
+import com.seva.tracker.presentation.mapNewRoute.POSITION_KYIV
 import com.seva.tracker.utils.formatEpochDays
 import com.seva.tracker.utils.getBitmapDescriptor
 import com.seva.tracker.utils.shortenString
@@ -59,22 +50,13 @@ fun MapAllRoutesScreen(
     viewModel: MyViewModel,
     navController: NavHostController
 ) {
-    val context = LocalContext.current
     var locationPermissionGranted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var selectedRouteName by remember { mutableStateOf<String?>(null) }
-
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        locationPermissionGranted = isGranted
-    }
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(50.4501, 30.5234), 10f)
+        position = CameraPosition.fromLatLngZoom(POSITION_KYIV, 10f)
     }
-
     val allIds by viewModel.getOnlyIdList().collectAsState(initial = emptyList())
     val routeCoordinatesMap = remember { mutableStateMapOf<Long, List<LatLng>>() }
 
@@ -83,7 +65,6 @@ fun MapAllRoutesScreen(
     var selectedRouteId by remember { mutableStateOf<Long?>(null) }
 
     val stringDeleteHelper = stringResource(R.string.clickwindowtodeleteroute)
-        //  val markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker)
     var isMapLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(allIds) {
@@ -92,7 +73,7 @@ fun MapAllRoutesScreen(
             routeEntities[routeId] = routeEntity
 
             val coordinates = viewModel.coordtListLiveFlow(routeId).firstOrNull() ?: emptyList()
-            routeCoordinatesMap[routeId] = coordinates.map { LatLng(it.Lattitude, it.Longittude) }
+            routeCoordinatesMap[routeId] = coordinates.map { LatLng(it.lattitude, it.longittude) }
         }
     }
     LocationPermissionHandler(
@@ -121,19 +102,17 @@ fun MapAllRoutesScreen(
                 routeCoordinatesMap.forEach { (routeId, routePoints) ->
                     if (routePoints.isNotEmpty()) {
                         val routeEntity = routeEntities[routeId]
-                     //   if (isMapLoaded) {
-                           // val markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker)
-                            val customIcon = getBitmapDescriptor(R.drawable.ic_circle_)
+                        val customIcon = getBitmapDescriptor(R.drawable.ic_circle_)
                         Marker(
                             state = MarkerState(position = routePoints.first()),
-                            title = routeEntity?.recordRouteName?.let { shortenString(it) }+" • ${routeEntity?.lenght}",
+                            title = routeEntity?.recordRouteName?.let { shortenString(it) } + " • ${routeEntity?.lenght}",
                             snippet = "${
                                 routeEntity?.epochDays?.let {
                                     formatEpochDays(
                                         it
                                     )
                                 }
-                            } • $stringDeleteHelper" ,
+                            } • $stringDeleteHelper",
                             icon = customIcon,
                             onClick = { marker ->
                                 selectedRouteId = if (selectedRouteId == routeId) null else routeId
@@ -141,17 +120,12 @@ fun MapAllRoutesScreen(
                                 true
                             },
                             onInfoWindowClick = { marker ->
-                                Log.d("Map", "Клик по InfoWindow у маркера: ${marker.title}")
                                 selectedRouteName = routeEntities[selectedRouteId]?.recordRouteName
                                 showDialog = true
-
                             }
                         )
-                 //   }
-
 
                         val isDrawing = routeEntity?.isDrawing ?: false
-                        Log.d("vvv", "isDrawing $isDrawing")
 
                         val polylineWidth = if (selectedRouteId == routeId)
                             20f
@@ -166,9 +140,8 @@ fun MapAllRoutesScreen(
                         }
                     }
                 }
-
             }
-            if (showDialog ) {
+            if (showDialog) {
                 DeleteRouteDialog(
                     title = stringResource(R.string.tittledeleteallert),
                     message = stringResource(R.string.areyousurewanttodeleteroute) + " ${selectedRouteName}?",
@@ -180,11 +153,8 @@ fun MapAllRoutesScreen(
                                 viewModel.deleteRouteAndRecordNumberTogether(
                                     it
                                 )
-                                // Удаляем маршрут из локальных списков
                                 routeEntities.remove(selectedRouteId)
                                 routeCoordinatesMap.remove(selectedRouteId)
-
-                                // Обнуляем выбранный маршрут
                                 selectedRouteId = null
                             }
                         }

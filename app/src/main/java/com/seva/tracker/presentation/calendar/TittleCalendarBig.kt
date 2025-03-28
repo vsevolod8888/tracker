@@ -1,4 +1,4 @@
-package com.seva.tracker.io.wojciechosak.calendar.view
+package com.seva.tracker.presentation.calendar
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +38,8 @@ fun TittleCalendarBig(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(painterResource(R.drawable.arrow_left),
+        Icon(
+            painterResource(R.drawable.arrow_left),
             contentDescription = stringResource(R.string.prevmonth),
             modifier = Modifier
                 .padding(start = 1.dp)
@@ -56,7 +57,8 @@ fun TittleCalendarBig(
             textAlign = TextAlign.Center
         )
 
-        Icon(painterResource(R.drawable.arrow_right),
+        Icon(
+            painterResource(R.drawable.arrow_right),
             contentDescription = stringResource(R.string.nextmonth),
             modifier = Modifier
                 .padding(end = 1.dp)
