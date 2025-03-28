@@ -11,10 +11,10 @@ Route Tracker is an Android application that records your routes in the backgrou
 
 ## Screenshots
 
-<img src="https://i.imgur.com/wepjpYi.jpg" width="300">
-<img src="https://i.imgur.com/mxGteR2.jpg" width="300">
-<img src="https://i.imgur.com/91pS7av.jpg" width="300">
-<img src="https://i.imgur.com/imgUVIt.jpg" width="300">
+<img src="https://i.imgur.com/oVXu0VK.jpg" width="300">
+<img src="[Imgur](https://i.imgur.com/l9fSyHE.jpg)" width="300">
+<img src="[Imgur](https://i.imgur.com/QadOz6M.jpg)" width="300">
+<img src="[Imgur](https://i.imgur.com/eGDHOAr.jpg)" width="300">
 
 
 ## Technologies & Dependencies
@@ -41,7 +41,7 @@ The app is built using **Jetpack Compose** and leverages the following libraries
 ## Installation & Setup
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/route-tracker.git
+   git clone https://github.com/vsevolod8888/tracker.git
    ```
 2. Open the project in **Android Studio**.
 3. Add your **Google Maps API Key** to `local.properties`:
