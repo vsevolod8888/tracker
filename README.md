@@ -11,10 +11,8 @@ Route Tracker is an Android application that records your routes in the backgrou
 
 ## Screenshots
 
-<img src="https://i.imgur.com/oVXu0VK.jpg" width="300">
-<img src="[Imgur](https://i.imgur.com/l9fSyHE.jpg)" width="300">
-<img src="[Imgur](https://i.imgur.com/QadOz6M.jpg)" width="300">
-<img src="[Imgur](https://i.imgur.com/eGDHOAr.jpg)" width="300">
+<img src="https://i.imgur.com/oVXu0VK.jpg" width="300"> <img src="https://i.imgur.com/l9fSyHE.jpg" width="300">
+<img src="https://i.imgur.com/QadOz6M.jpg" width="300"> <img src="https://i.imgur.com/eGDHOAr.jpg" width="300">
 
 
 ## Technologies & Dependencies
