@@ -90,4 +90,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.core.testing)
+    //noinspection UseTomlInstead
+  //  testImplementation("androidx.hilt:hilt-lifecycle-viewmodel-testing:1.0.0")
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.hilt.android.testing)
+    testImplementation(libs.androidx.room.testing)
+
+    implementation (libs.hilt.navigation.compose)
+    testImplementation (libs.hilt.android.testing)
+    kaptTest (libs.hilt.android.compiler)
 }

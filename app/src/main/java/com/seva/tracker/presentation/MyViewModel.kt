@@ -58,7 +58,7 @@ class MyViewModel @Inject constructor(
                 epochDays = epochDays.toInt(),
                 lenght = lenght,
                 isDrawing = true,
-                checkTime = System.currentTimeMillis(),
+                checkTime = System.currentTimeMillis(),//1743436572754
                 recordRouteName = nameOfDrRoute,
                 isClicked = false
             )
