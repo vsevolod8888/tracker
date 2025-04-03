@@ -22,7 +22,7 @@
         tools:ignore="ForegroundServicePermission">
         <service
             android:name="com.seva.tracker.service.CounterService"
-            android:foregroundServiceType="mediaPlayback"
+            android:foregroundServiceType="location"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"

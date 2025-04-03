@@ -30,15 +30,6 @@ class RepositoryImpl @Inject constructor(
         databasse.dao.insertCoord(c)
     }
 
-    override suspend fun lastNumberOfList(): Long? {
-        return try {
-            databasse.dao.getLastRecordNumber()
-        } catch (e: Exception) {
-            Log.d(TAG, "${e.localizedMessage}")
-            null
-        }
-    }
-
     override fun coordtListLiveFlow(routeId: Long): Flow<List<CoordinatesEntity>> {
         return databasse.dao.getListByUnicalRecordNumber(routeId)
     }
