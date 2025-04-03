@@ -10,7 +10,6 @@ interface Repository {
     suspend fun updateFutureMatches()
     suspend fun insertCoord(c: CoordinatesEntity)
     suspend fun insertRoute(newRoute: RouteEntity)
-    suspend fun lastNumberOfList(): Long?
     fun coordtListLiveFlow(routeId: Long): Flow<List<CoordinatesEntity>>
     suspend fun deleteRouteAndRecordNumberTogether(id: Long)
     fun allRoutesFlow(): Flow<List<RouteEntity>>

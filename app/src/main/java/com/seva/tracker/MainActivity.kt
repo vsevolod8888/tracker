@@ -3,6 +3,7 @@ package com.seva.tracker
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -55,10 +56,12 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val viewModel: MyViewModel by viewModels()
 
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             val isDarkTheme by viewModel.isThemeDark.collectAsState()
             lifecycleScope.launch {
@@ -128,6 +131,7 @@ fun NavigationGraph(
                 pendingAction = {
                     scope.launch {
                         viewModel.saveRouteName(myRouteName)
+                        myRouteName = ""
                         navController.navigate("${NavigationItem.MapNew.route}/$myRouteName") {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -137,6 +141,7 @@ fun NavigationGraph(
                         }
                         delay(START_DELAY)
                         startCounterService(context)
+
                     }
                 }
                 when {
@@ -152,10 +157,15 @@ fun NavigationGraph(
             },
             onDrawRoute = {
                 pendingAction = {
-                    navController.navigate("${NavigationItem.MapDraw.route}/$myRouteName") {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                    scope.launch {
+                        navController.navigate("${NavigationItem.MapDraw.route}/$myRouteName") {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        myRouteName = ""
                     }
                 }
                 when {
@@ -260,5 +270,5 @@ fun startCounterService(context: Context) {
 }
 
 
-const val START_DELAY = 500L
+const val START_DELAY = 50L
 

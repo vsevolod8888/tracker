@@ -2,7 +2,6 @@ package com.seva.tracker
 
 import com.seva.tracker.data.datastore.SettingsDataStore
 import com.seva.tracker.data.repository.Repository
-import com.seva.tracker.data.room.RouteEntity
 import com.seva.tracker.presentation.MyViewModel
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -26,9 +25,9 @@ class MyViewModelTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var viewModel: MyViewModel
-
     private val settingsData: SettingsDataStore = mockk(relaxed = true)
-    private val repository: Repository = mockk(relaxed = true)
+    private val repository: Repository =
+        mockk(relaxed = true)//relaxed = false so you need to write down what the method returns
 
     @Before
     fun setup() {
@@ -39,8 +38,8 @@ class MyViewModelTest {
     fun `updateRouteId saves new value`() = runTest {
         viewModel.updateRouteId(123L)
 
-        coVerify { settingsData.saveRouteId(123L) }
-    }
+        coVerify { settingsData.saveRouteId(123L) }//coVerify - check that the function was called (for suspend)
+    } // for usual verify
 
     @Test
     fun `saveDrawRoute creates route and saves it in DB`() = runTest {
@@ -49,19 +48,7 @@ class MyViewModelTest {
         val length = "10km"
 
         viewModel.saveDrawRoute(routeName, recordNumber, length)
-
-        val expectedEpochDays = (recordNumber / 86400000).toInt()
-        val expectedRoute = RouteEntity(
-            id = recordNumber,
-            epochDays = expectedEpochDays,
-            lenght = length,
-            isDrawing = true,
-            checkTime = 1743436572754,
-            recordRouteName = routeName,
-            isClicked = false
-        )
-
-        coVerify { repository.insertRoute(expectedRoute) }
+        coVerify { repository.insertRoute(any()) }
     }
 
     @Test

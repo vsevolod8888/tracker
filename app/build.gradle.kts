@@ -34,6 +34,7 @@ android {
         resValue("string", "google_maps_key", mapsApiKey)
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -67,6 +68,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation (libs.androidx.activity.ktx)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.junit.ktx)
     kapt(libs.hilt.compiler)
 
     implementation (libs.androidx.navigation.compose)
@@ -82,25 +84,39 @@ dependencies {
     implementation (libs.androidx.datastore.preferences)
 
     implementation(libs.kotlinx.datetime)
-
+    testImplementation   (libs.truth)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.core.testing)
-    //noinspection UseTomlInstead
-  //  testImplementation("androidx.hilt:hilt-lifecycle-viewmodel-testing:1.0.0")
-    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.hilt.android.testing)
-    testImplementation(libs.androidx.room.testing)
 
-    implementation (libs.hilt.navigation.compose)
-    testImplementation (libs.hilt.android.testing)
-    kaptTest (libs.hilt.android.compiler)
+    testImplementation(libs.hilt.android.testing)
+    kaptTest(libs.hilt.android.compiler)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.androidx.core.testing)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    // Room test
+    androidTestImplementation (libs.androidx.room.testing)
+    androidTestImplementation ("androidx.navigation:navigation-testing:2.8.9")
+    androidTestImplementation (libs.truth.v113)
+
+
+    // Coroutines test
+
+    // Test Compose
+    androidTestImplementation (libs.ui.test.junit4)
+    debugImplementation (libs.ui.test.manifest)
+    // ViewModel test
+    androidTestImplementation (libs.androidx.lifecycle.runtime.testing)
+    androidTestImplementation (libs.kotlinx.coroutines.test.v150)
+    androidTestImplementation (libs.mockk.android)
 }
