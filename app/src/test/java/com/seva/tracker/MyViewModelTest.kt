@@ -82,7 +82,6 @@ class MainCoroutineRule(
         }
     }
 
-    // Optionally expose the dispatcher for testing coroutines
     fun getDispatcher() = dispatcher
     fun getTestScope() = testCoroutineScope
 }

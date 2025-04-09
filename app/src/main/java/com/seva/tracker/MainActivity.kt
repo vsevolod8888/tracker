@@ -1,6 +1,7 @@
 package com.seva.tracker
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -17,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +33,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.seva.tracker.ui.theme.TrackerTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.seva.tracker.permissions.BackGroundLocationPermissionHandler
 import com.seva.tracker.permissions.LocationPermissionHandler
 import com.seva.tracker.permissions.NotificationPermissionHandler
 import com.seva.tracker.presentation.mapDraw.MapDrawScreen
@@ -50,12 +51,23 @@ import com.seva.tracker.utils.makeToastNoInternet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import java.util.UUID
+import android.net.Uri
+import com.seva.tracker.utils.openLocationSettings
+import com.seva.tracker.utils.toastLocation
+import com.seva.tracker.utils.toastNeedNotifications
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MyViewModel by viewModels()
-
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -100,7 +112,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationGraph(
@@ -120,10 +131,79 @@ fun NavigationGraph(
     var requestLocation by remember { mutableStateOf(false) }
     var requestBackgroundLocation by remember { mutableStateOf(false) }
     var pendingAction: (() -> Unit)? by remember { mutableStateOf(null) }
-    var scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
+    var backgroundRequestTrigger by remember { mutableStateOf(UUID.randomUUID()) }
+    val backgroundRequestLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        backgroundPermission = isGranted
+        requestBackgroundLocation = false
+
+        if (isGranted) {
+            pendingAction?.invoke()
+            pendingAction = null
+        } else {
+            backgroundRequestTrigger = UUID.randomUUID()
+            backgroundPermission = false
+        }
+    }
+    val locationSettingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        backgroundPermission = isEnabled
+        requestBackgroundLocation = false
+
+        if (isEnabled) {
+            pendingAction?.invoke()
+            pendingAction = null
+        }
+    }
+
+    LaunchedEffect(requestBackgroundLocation, backgroundRequestTrigger) {
+        if (!requestBackgroundLocation ) return@LaunchedEffect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                backgroundPermission = true
+                requestBackgroundLocation = false
+                pendingAction?.invoke()
+                pendingAction = null
+            } else {
+                val activity = context as? Activity
+                if (activity != null &&
+                    !ActivityCompat.shouldShowRequestPermissionRationale(
+                        activity,
+                        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
+                ) {
+                    openAppSettings(context)
+                    requestBackgroundLocation = false
+                } else {
+                    backgroundRequestLauncher.launch(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                }
+            }
+        } else {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                locationSettingsLauncher.launch(intent)
+            } else {
+                backgroundPermission = true
+                requestBackgroundLocation = false
+                pendingAction?.invoke()
+                pendingAction = null
+            }
+        }
+    }
 
     if (showDialog) {
-        NewRouteDialog(title = stringResource(R.string.routes),
+        NewRouteDialog(
+            title = stringResource(R.string.routes),
             message = stringResource(R.string.enteraroutenameandselectanaction),
             routeName = myRouteName,
             onRouteNameChange = { myRouteName = it },
@@ -141,7 +221,6 @@ fun NavigationGraph(
                         }
                         delay(START_DELAY)
                         startCounterService(context)
-
                     }
                 }
                 when {
@@ -149,8 +228,15 @@ fun NavigationGraph(
                     !locationPermission -> requestLocation = true
                     !backgroundPermission -> requestBackgroundLocation = true
                     else -> {
-                        pendingAction?.invoke()
-                        pendingAction = null
+                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                        if (isGpsEnabled) {
+                            pendingAction?.invoke()
+                            pendingAction = null
+                        } else {
+                            toastLocation(context)
+                            openLocationSettings(context)
+                        }
                     }
                 }
                 onShowDialogChange(false)
@@ -172,8 +258,15 @@ fun NavigationGraph(
                     !locationPermission -> requestLocation = true
                     !backgroundPermission -> requestBackgroundLocation = true
                     else -> {
-                        pendingAction?.invoke()
-                        pendingAction = null
+                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                        if (isGpsEnabled) {
+                            pendingAction?.invoke()
+                            pendingAction = null
+                        } else {
+                            toastLocation(context) // Показываем, что локация отключена
+                            openLocationSettings(context) // Открываем настройки локации
+                        }
                     }
                 }
                 onShowDialogChange(false)
@@ -181,46 +274,40 @@ fun NavigationGraph(
             onDismiss = {
                 onShowDialogChange(false)
                 navController.popBackStack()
-            })
+            }
+        )
     }
-
     if (requestNotification) {
-        NotificationPermissionHandler { isGranted ->
-            hasNotificationPermission = isGranted
-            if (isGranted) {
+        NotificationPermissionHandler(
+            onPermissionResult = { isGranted ->
+                Log.d("vvv", "295 isGrantedNotification $isGranted")
+                hasNotificationPermission = isGranted
                 requestNotification = false
-                if (!locationPermission) {
+                if (isGranted && !locationPermission) {
                     requestLocation = true
+                } else if (!isGranted) {
+                    toastNeedNotifications(context)
+                    openAppSettings(context)
                 }
             }
-        }
+        )
     }
+
 
     if (requestLocation) {
-        LocationPermissionHandler(onPermissionResult = { isGranted ->
-            locationPermission = isGranted
-            if (isGranted) {
+        LocationPermissionHandler(
+            onPermissionResult = { isGranted ->
+                locationPermission = isGranted
                 requestLocation = false
-                if (!backgroundPermission) {
+                if (isGranted && !backgroundPermission) {
                     requestBackgroundLocation = true
+                }else if (!isGranted) {
+                    toastLocation(context)
+                    openAppSettings(context)
                 }
-            }
-        }, onLocationReceived = { location ->
-
-        })
-    }
-
-    if (requestBackgroundLocation) {
-        BackGroundLocationPermissionHandler { isGranted ->
-            backgroundPermission = isGranted
-            Log.d("vvv", "isGranted BackGroundLocationPermissionHandler $isGranted")
-
-            if (isGranted) {
-                requestBackgroundLocation = false
-                pendingAction?.invoke()
-                pendingAction = null
-            }
-        }
+            },
+            onLocationReceived = { /* обработка данных о локации */ }
+        )
     }
 
     NavHost(
@@ -229,11 +316,11 @@ fun NavigationGraph(
         modifier = modifier
     ) {
         composable(NavigationItem.RoutesSmallCalendar.route) {
-            RoutesScreen(
-                viewModel, navController
-            )
+            RoutesScreen(viewModel, navController)
         }
-        composable(NavigationItem.Settings.route) { SettingsScreen(viewModel, navController) }
+        composable(NavigationItem.Settings.route) {
+            SettingsScreen(viewModel, navController)
+        }
         composable("${NavigationItem.MapDraw.route}/{routeName}") { backStackEntry ->
             val routeName = backStackEntry.arguments?.getString("routeName")
             MapDrawScreen(viewModel, navController, routeName)
@@ -242,22 +329,18 @@ fun NavigationGraph(
             val routeName = backStackEntry.arguments?.getString("routeName")
             MapNewRouteScreen(viewModel, navController)
         }
-        composable(NavigationItem.MapAll.route) { backStackEntry ->
+        composable(NavigationItem.MapAll.route) {
             MapAllRoutesScreen(viewModel, navController)
         }
         composable(NavigationItem.RoutesBigCalendar.route) {
-            RoutesBigScreen(
-                viewModel, navController
-            )
+            RoutesBigScreen(viewModel, navController)
         }
         composable("${NavigationItem.MapReady.route}/{routeId}/{recordRouteName}") { backStackEntry ->
-            val routeId =
-                backStackEntry.arguments?.getString("routeId")?.toLongOrNull() ?: return@composable
+            val routeId = backStackEntry.arguments?.getString("routeId")?.toLongOrNull() ?: return@composable
             val recordRouteName = backStackEntry.arguments?.getString("recordRouteName") ?: ""
             MapReadyScreen(viewModel, navController, routeId, recordRouteName)
         }
     }
-
 }
 
 fun startCounterService(context: Context) {
@@ -268,7 +351,32 @@ fun startCounterService(context: Context) {
         context.startService(intent)
     }
 }
-
-
 const val START_DELAY = 50L
+
+fun openAppSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
+    context.startActivity(intent)
+}
+
+fun checkAndHandleGpsStatus(
+    context: Context,
+    pendingAction: (() -> Unit)?,
+    toastLocation: () -> Unit,
+    openLocationSettings: () -> Unit
+) {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    if (isGpsEnabled) {
+        pendingAction?.invoke()
+    } else {
+        toastLocation()
+        openLocationSettings()
+    }
+}
+
+
+
+
 
