@@ -6,6 +6,9 @@
     <string name="settings">Налаштування</string>
     <string name="mapdraw">Малювання на карті</string>
     <string name="mapready">Карта готова</string>
+    <string name="neednotif">Увімкніть сповіщення в налаштуваннях</string>
+    <string name="needtoaccessthisdeviceslocation">Потрібен доступ до геолокації пристрою</string>
+
 
     <string name="tittledeleteallert">Видалення маршруту</string>
     <string name="areyousurewanttodeleteroute">Ви впевнені, що хочете видалити маршрут:</string>

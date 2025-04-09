@@ -1,6 +1,7 @@
 package com.seva.tracker.utils
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.widget.Toast
@@ -13,6 +14,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.seva.tracker.R
 import kotlinx.datetime.LocalDate
+import android.provider.Settings
+
 
 @Composable
 fun formatEpochDays(epochDays: Int): String {
@@ -46,7 +49,12 @@ fun shortenString(input: String): String {
 fun makeToastNoInternet(context: Context) {
     Toast.makeText(context, R.string.nointernetconnection, Toast.LENGTH_LONG).show()
 }
-
+fun toastNeedNotifications(context: Context) {
+    Toast.makeText(context, R.string.neednotif, Toast.LENGTH_LONG).show()
+}
+fun toastLocation(context: Context) {
+    Toast.makeText(context, R.string.needtoaccessthisdeviceslocation, Toast.LENGTH_LONG).show()
+}
 @Composable
 fun getBitmapDescriptor(@DrawableRes vectorResId: Int): BitmapDescriptor? {
     val context = LocalContext.current
@@ -60,4 +68,8 @@ fun getBitmapDescriptor(@DrawableRes vectorResId: Int): BitmapDescriptor? {
     drawable.setBounds(0, 0, canvas.width, canvas.height)
     drawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bitmap)
+}
+fun openLocationSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+    context.startActivity(intent)
 }

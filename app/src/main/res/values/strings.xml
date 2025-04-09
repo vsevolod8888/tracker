@@ -31,6 +31,9 @@
     <string name="therearenoroutesfortoday">There are no routes for today</string>
     <string name="clickwindowtodeleteroute">Click to delete</string>
     <string name="nointernetconnection">No internet connection</string>
+    <string name="neednotif">Enable notifications in settings</string>
+    <string name="needtoaccessthisdeviceslocation">Need to access this device\'s location</string>
+
     <string name="km">km</string>
     <string name="meters">m</string>
     <string name="conti">Continue</string>

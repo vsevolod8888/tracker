@@ -6,6 +6,7 @@
     <string name="settings">Настройки</string>
     <string name="mapdraw">Рисование на карте</string>
     <string name="mapready">Карта готова</string>
+    <string name="neednotif">Включите уведомления в настройках</string>
 
     <string name="tittledeleteallert">Удаление маршрута</string>
     <string name="areyousurewanttodeleteroute">Вы уверены, что хотите удалить маршрут:</string>
@@ -14,6 +15,8 @@
     <string name="cancel">Отмена</string>
     <string name="delete">Удалить</string>
     <string name="create">Создать</string>
+    <string name="needtoaccessthisdeviceslocation">Требуется доступ к геолокации устройства</string>
+
 
     <string name="createoute">Создать маршрут</string>
     <string name="enteraroutenameandselectanaction">Введите название маршрута и выберите действие</string>
