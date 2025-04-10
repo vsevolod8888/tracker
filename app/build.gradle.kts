@@ -27,11 +27,12 @@ android {
         applicationId = "com.seva.tracker"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "google_maps_key", mapsApiKey)
+        setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
     }
 
 
